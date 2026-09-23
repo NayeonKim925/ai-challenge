@@ -235,17 +235,21 @@ def _run_document_ingest(db: Store, run: dict[str, Any]) -> dict[str, Any]:
             }
             event = normalize_event(raw, project["data"] if project else {}, version["data"]["tasks"])
             fingerprint = digest({"document_id": document_id, "text": parsed["text"]})
-            event_id = identifier()
-            event["id"] = event_id
-            db.put_json("events", event_id, event, project_id=run["project_id"], fingerprint=fingerprint)
-            notify_project(
-                db,
-                run["project_id"],
-                "document_received",
-                "새 문서 입력",
-                f"{record.get('filename') or '문서'}에서 이벤트를 추출했습니다.",
-                data={"event_id": event_id, "document_id": document_id},
-            )
+            existing_event = db.find_event_by_fingerprint(run["project_id"], fingerprint)
+            if existing_event:
+                event_id = existing_event["id"]
+            else:
+                event_id = identifier()
+                event["id"] = event_id
+                db.put_json("events", event_id, event, project_id=run["project_id"], fingerprint=fingerprint)
+                notify_project(
+                    db,
+                    run["project_id"],
+                    "document_received",
+                    "새 문서 입력",
+                    f"{record.get('filename') or '문서'}에서 이벤트를 추출했습니다.",
+                    data={"event_id": event_id, "document_id": document_id},
+                )
             record["event_id"] = event_id
         db.put_json("documents", document_id, record, project_id=run["project_id"], created_at=document["created_at"])
         return {"status": "succeeded", "document_id": document_id, "event_id": event_id}

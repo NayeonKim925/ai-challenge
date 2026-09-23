@@ -276,6 +276,18 @@ async def upload_document(project_id: str, file: UploadFile = File(...)) -> dict
     db.save_upload(document_id, content)
     filename = file.filename or "input.txt"
     content_hash = hashlib.sha256(content).hexdigest()
+    existing = db.find_document_by_hash(project_id, content_hash)
+    if existing:
+        existing_data = existing["data"]
+        run = db.get_json("runs", existing_data.get("run_id"), project_id) if existing_data.get("run_id") else None
+        return {
+            "document_id": existing["id"],
+            "job_id": existing_data.get("run_id"),
+            "status": run["status"] if run else existing_data.get("status", "FAILED").lower(),
+            "duplicate": True,
+            "document": existing_data,
+            "event": None,
+        }
     record = {
         "document_id": document_id,
         "filename": filename,
@@ -321,6 +333,32 @@ def get_document(project_id: str, document_id: str) -> dict[str, Any]:
     run_id = document["data"].get("run_id")
     run = db.get_json("runs", run_id, project_id) if run_id else None
     return {"document": document, "run": run}
+
+
+@app.post("/api/projects/{project_id}/documents/{document_id}/retry", status_code=202, dependencies=[Depends(authorize)])
+def retry_document(project_id: str, document_id: str) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    document = db.get_json("documents", document_id, project_id)
+    if not document:
+        raise HTTPException(404, "document not found")
+    record = dict(document["data"])
+    if record.get("status") != "FAILED":
+        run = db.get_json("runs", record.get("run_id"), project_id) if record.get("run_id") else None
+        return {"document_id": document_id, "job_id": record.get("run_id"), "status": run["status"] if run else record.get("status", "UNKNOWN").lower(), "duplicate": True, "document": record}
+    retry_count = int(record.get("retry_count") or 0) + 1
+    version = db.current_version(project_id)
+    run = db.create_run(
+        project_id,
+        "document_ingest",
+        None,
+        version["id"] if version else None,
+        f"document:{document_id}:retry:{retry_count}",
+        {"document_id": document_id, "retry_count": retry_count},
+    )
+    record.update({"status": "QUEUED", "error": None, "retry_count": retry_count, "run_id": run["id"]})
+    db.put_json("documents", document_id, record, project_id=project_id, created_at=document["created_at"])
+    return {"document_id": document_id, "job_id": run["id"], "status": run["status"], "duplicate": False, "document": record}
 
 
 @app.put("/api/projects/{project_id}/mail-account", dependencies=[Depends(authorize)])

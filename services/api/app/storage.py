@@ -232,6 +232,33 @@ class Store:
             result.append(item)
         return result
 
+    def find_document_by_hash(self, project_id: str, content_hash: str) -> dict[str, Any] | None:
+        """Return the newest document with the same content in a project."""
+        with self.connection() as db:
+            rows = db.execute(
+                "SELECT * FROM documents WHERE project_id=? ORDER BY created_at DESC",
+                (project_id,),
+            ).fetchall()
+        for row in rows:
+            data = json.loads(row["data"])
+            if data.get("sha256") == content_hash:
+                item = dict(row)
+                item["data"] = data
+                return item
+        return None
+
+    def find_event_by_fingerprint(self, project_id: str, fingerprint: str) -> dict[str, Any] | None:
+        with self.connection() as db:
+            row = db.execute(
+                "SELECT * FROM events WHERE project_id=? AND fingerprint=?",
+                (project_id, fingerprint),
+            ).fetchone()
+        if row is None:
+            return None
+        item = dict(row)
+        item["data"] = json.loads(item["data"])
+        return item
+
     def current_version(self, project_id: str) -> dict[str, Any] | None:
         with self.connection() as db:
             row = db.execute(

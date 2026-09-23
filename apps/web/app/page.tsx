@@ -207,6 +207,15 @@ export default function Home() {
     setNotice("문서 처리 대기 중입니다. worker 상태를 확인하세요.");
   }
 
+  async function retryDocument() {
+    const documentId = text(documentStatus?.document_id, "");
+    if (!documentId) return;
+    const retried = await guarded("문서 재처리", () => callApi<Dict>(`/api/projects/${projectId}/documents/${documentId}/retry`, { method: "POST" }), (value) => {
+      setDocumentStatus((value.document as Dict) || null);
+    });
+    if (retried?.document_id) await pollDocument(String(retried.document_id));
+  }
+
   async function createSitePrep() {
     await guarded("현장 준비 체크리스트", () => callApi<Dict>(`/api/projects/${projectId}/site-prep`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ template_id: "equipment_installation_v1" }) }), async () => refreshProject(projectId));
   }
@@ -507,6 +516,7 @@ export default function Home() {
               <b>{text(documentStatus.filename)} · {text(documentStatus.status)}</b>
               {Boolean(documentStatus.error) && <small className="muted">{text(documentStatus.error)}</small>}
               {Boolean(documentStatus.event_id) && <small className="muted">이벤트 {shortId(documentStatus.event_id)}</small>}
+              {documentStatus.status === "FAILED" && <button className="secondary" onClick={retryDocument} disabled={busy}>다시 처리</button>}
             </div>
           )}
         </aside>

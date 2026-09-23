@@ -199,6 +199,10 @@ def test_p1_document_mail_notifications_and_site_prep(client):
     assert processed["document"]["data"]["input_type"] == "text"
     assert processed["run"]["status"] == "succeeded"
     assert processed["run"]["data"]["event_id"]
+    duplicate = request(client, "post", f"/api/projects/{project_id}/documents", files={"file": ("notice-copy.txt", "T03 공급사 일정이 하루 지연됩니다.".encode())})
+    assert duplicate["duplicate"] is True
+    assert duplicate["document_id"] == uploaded["document_id"]
+    assert len(request(client, "get", f"/api/projects/{project_id}/documents")["documents"]) == 1
     notifications = request(client, "get", f"/api/projects/{project_id}/notifications")
     assert notifications["notifications"]
     channel = request(client, "post", f"/api/projects/{project_id}/notification-channels", json={"channel": "email", "target": "ops@example.com"})
@@ -237,3 +241,10 @@ def test_p1_rejects_malformed_pdf(client):
     assert processed.status_code == 200
     assert processed.json()["document"]["data"]["status"] == "FAILED"
     assert processed.json()["run"]["status"] == "failed"
+    retried = request(client, "post", f"/api/projects/{project_id}/documents/{uploaded['document_id']}/retry")
+    assert retried["status"] == "queued"
+    assert retried["document"]["retry_count"] == 1
+    assert run_once(Store())
+    failed_again = request(client, "get", f"/api/projects/{project_id}/documents/{uploaded['document_id']}")
+    assert failed_again["document"]["data"]["status"] == "FAILED"
+    assert failed_again["document"]["data"]["retry_count"] == 1

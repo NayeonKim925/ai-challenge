@@ -6,7 +6,7 @@ services:
     environment:
       REPLAN_DATA_DIR: /data
       REPLAN_DEMO_TOKEN: ${REPLAN_DEMO_TOKEN:?Set REPLAN_DEMO_TOKEN}
-      REPLAN_CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      REPLAN_CORS_ORIGINS: ${REPLAN_CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
       REPLAN_ALLOWED_SOURCE_HOSTS: ${REPLAN_ALLOWED_SOURCE_HOSTS:-environment.ec.europa.eu}
       API_KEY: ${API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
@@ -17,6 +17,13 @@ services:
       - replan_data:/data
     ports:
       - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   worker:
     build:
@@ -33,7 +40,9 @@ services:
     volumes:
       - replan_data:/data
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    restart: unless-stopped
 
   web:
     build:
@@ -46,7 +55,15 @@ services:
       REPLAN_BACKEND_URL: http://api:8000
       REPLAN_DEMO_TOKEN: ${REPLAN_DEMO_TOKEN:?Set REPLAN_DEMO_TOKEN}
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --quiet http://127.0.0.1:3000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 volumes:
   replan_data:

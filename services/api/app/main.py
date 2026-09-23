@@ -629,7 +629,17 @@ def create_analysis(project_id: str, value: AnalysisInput, idempotency_key: str 
     if not version:
         raise HTTPException(409, "schedule version not found")
     key = idempotency_key or digest({"event_id": value.event_id, "version_id": version["id"], "budget": value.budget_krw})
-    run = db.create_run(project_id, "analysis", value.event_id, version["id"], key, {"budget_krw": value.budget_krw})
+    run = db.create_run(
+        project_id,
+        "analysis",
+        value.event_id,
+        version["id"],
+        key,
+        {
+            "budget_krw": value.budget_krw,
+            "project_context_snapshot": db.project_context_snapshot(project_id),
+        },
+    )
     return {"run_id": run["id"], "status": run["status"]}
 
 
@@ -652,7 +662,9 @@ def replan(run_id: str, value: ReplanInput) -> dict[str, Any]:
         raise HTTPException(404, "analysis run not found")
     project_or_404(db, prior["project_id"])
     key = digest({"prior": run_id, "budget": value.budget_krw, "unavailable": sorted(value.unavailable_option_ids)})
-    run = db.create_run(prior["project_id"], "analysis", prior["event_id"], prior["version_id"], key, value.model_dump())
+    run_data = value.model_dump()
+    run_data["project_context_snapshot"] = db.project_context_snapshot(prior["project_id"])
+    run = db.create_run(prior["project_id"], "analysis", prior["event_id"], prior["version_id"], key, run_data)
     return {"run_id": run["id"], "status": run["status"]}
 
 

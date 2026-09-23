@@ -244,6 +244,18 @@ class Store:
         item["data"] = json.loads(item["data"])
         return item
 
+    def project_context_snapshot(self, project_id: str) -> dict[str, Any]:
+        """Capture mutable project inputs before an asynchronous run is queued."""
+        project = self.get_json("projects", project_id)
+        profile = dict(project["data"] if project else {})
+        calendars = [item["data"] for item in self.list_json("supplier_calendars", project_id)]
+        context = {"project": profile, "supplier_calendars": calendars}
+        return {
+            **context,
+            "content_hash": digest(context),
+            "captured_at": utcnow(),
+        }
+
     def create_run(self, project_id: str, kind: str, event_id: str | None, version_id: str | None, idempotency_key: str | None, data: dict[str, Any]) -> dict[str, Any]:
         run_id = identifier()
         now = utcnow()
@@ -265,9 +277,11 @@ class Store:
 
     def update_run(self, run_id: str, status: str, data: dict[str, Any]) -> None:
         with self.transaction() as db:
+            prior = db.execute("SELECT data FROM runs WHERE id=?", (run_id,)).fetchone()
+            prior_data = json.loads(prior["data"]) if prior else {}
             db.execute(
                 "UPDATE runs SET status=?, data=?, updated_at=? WHERE id=?",
-                (status, encoded(data), utcnow(), run_id),
+                (status, encoded({**prior_data, **data}), utcnow(), run_id),
             )
 
     def claim_next_run(self) -> dict[str, Any] | None:

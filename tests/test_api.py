@@ -122,6 +122,32 @@ def test_e01_budget_replan_approval_commit_and_export(client):
     assert task_rows["T20"][5] == "2026-10-28"
 
 
+def test_analysis_uses_queued_project_context_snapshot(client):
+    project_id, preview, _ = baseline(client)
+    event_id = e01(client, project_id, preview)
+    request(
+        client,
+        "post",
+        f"/api/projects/{project_id}/supplier-calendars",
+        json={"supplier_id": "SUP-01", "label": "공급사 휴무", "unavailable_dates": ["2026-10-05"]},
+    )
+    queued = request(client, "post", f"/api/projects/{project_id}/analyses", json={"event_id": event_id})
+    before = request(client, "get", f"/api/runs/{queued['run_id']}")
+    snapshot = before["run"]["data"]["project_context_snapshot"]
+    assert "2026-10-05" in snapshot["project"]["supplier_unavailable_dates"]
+    request(
+        client,
+        "post",
+        f"/api/projects/{project_id}/supplier-calendars",
+        json={"supplier_id": "SUP-02", "label": "변경 후 휴무", "unavailable_dates": ["2026-10-06"]},
+    )
+    assert run_once(Store())
+    after = request(client, "get", f"/api/runs/{queued['run_id']}")
+    run_snapshot = after["run"]["data"]["project_context_snapshot"]
+    assert "2026-10-06" not in run_snapshot["project"]["supplier_unavailable_dates"]
+    assert {item["data"]["project_context_hash"] for item in after["scenarios"]} == {snapshot["content_hash"]}
+
+
 def test_duplicate_event_and_stale_scenario(client):
     project_id, preview, _ = baseline(client)
     event_id = e01(client, project_id, preview)

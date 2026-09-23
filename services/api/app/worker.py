@@ -37,6 +37,7 @@ def _scenario_record(run: dict[str, Any], event: dict[str, Any], version: dict[s
         "mode": event.get("mode"),
         "data_origin": event.get("data_origin"),
         "simulation_as_of": event.get("simulation_as_of"),
+        "project_context_hash": (run.get("data") or {}).get("project_context_snapshot", {}).get("content_hash"),
     }
 
 
@@ -79,8 +80,13 @@ def _run_analysis(db: Store, run: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("event or version was removed")
     event = event_row["data"]
     snapshot = version["data"]
-    current_profile = db.get_json("projects", run["project_id"])
-    project = {**snapshot["project"], **(current_profile["data"] if current_profile else {})}
+    context_snapshot = (run.get("data") or {}).get("project_context_snapshot") or {}
+    if context_snapshot.get("project") is not None:
+        project = dict(context_snapshot["project"])
+    else:
+        # Compatibility for runs created before context snapshots were introduced.
+        current_profile = db.get_json("projects", run["project_id"])
+        project = dict(current_profile["data"] if current_profile else snapshot["project"])
     tasks = snapshot["tasks"]
     options = snapshot.get("options", [])
     budget = run["data"].get("budget_krw")
@@ -264,7 +270,14 @@ def _record_weather_risks(db: Store, project_id: str, plan: dict[str, Any], fore
             project["data"], version["data"]["tasks"],
         )
         db.put_json("events", event_id, event, project_id=project_id, fingerprint=fingerprint)
-        db.create_run(project_id, "analysis", event_id, version["id"], f"weather:{event_id}", {})
+        db.create_run(
+            project_id,
+            "analysis",
+            event_id,
+            version["id"],
+            f"weather:{event_id}",
+            {"project_context_snapshot": db.project_context_snapshot(project_id)},
+        )
         created.append(event_id)
     return created
 
@@ -312,7 +325,14 @@ def _run_scan(db: Store, run: dict[str, Any]) -> dict[str, Any]:
                     event_id = identifier()
                     event["id"] = event_id
                     db.put_json("events", event_id, event, project_id=run["project_id"], fingerprint=fingerprint)
-                    db.create_run(run["project_id"], "analysis", event_id, version["id"], f"source:{event_id}", {})
+                    db.create_run(
+                        run["project_id"],
+                        "analysis",
+                        event_id,
+                        version["id"],
+                        f"source:{event_id}",
+                        {"project_context_snapshot": db.project_context_snapshot(run["project_id"])},
+                    )
                     new_event_ids.append(event_id)
     return {"status": "succeeded", "scope": scope, "sources": source_results, "new_or_changed_count": sum(bool(item["changed"]) for item in source_results), "new_event_ids": new_event_ids}
 

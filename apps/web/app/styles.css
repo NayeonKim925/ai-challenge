@@ -724,6 +724,12 @@ main {
 .create-card { display: grid; gap: 14px; margin-top: 32px; }
 .entry-form button,
 .create-card button { margin-top: 5px; }
+.entry-assurance { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); background: var(--paper); padding: 15px 16px; }
+.entry-assurance > span { color: var(--accent); font-size: 14px; line-height: 1; }
+.entry-assurance b,
+.entry-assurance small { display: block; }
+.entry-assurance b { color: var(--deep); font-size: 13px; }
+.entry-assurance small { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .entry-error { color: var(--danger); font-weight: 700; }
 
 .directory-head {

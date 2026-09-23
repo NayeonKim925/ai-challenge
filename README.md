@@ -10,7 +10,7 @@ cd ai-innovators-challenge
 cp .env.example .env
 ```
 
-`.env`의 `REPLAN_DEMO_TOKEN`을 로컬용 값으로 바꾸세요. LLM 없이도 Excel/REPLAY 데모는 동작합니다. 실제 대회 키가 필요한 경우에만 `API_KEY`와 승인된 `LLM_MODEL` 별칭을 서버 환경에 추가하세요. **키가 있는 `.env`와 프로젝트 데이터는 커밋하지 않습니다.** Docker를 쓴다면 `docker compose up --build`로 API·worker·web을 함께 실행하고 `http://localhost:3000`을 여세요. 토큰 입력창에는 본인이 `.env`에 설정한 `REPLAN_DEMO_TOKEN`을 넣습니다.
+`.env`의 `REPLAN_DEMO_TOKEN`을 로컬용 값으로 바꾸세요. LLM 없이도 Excel/REPLAY 데모는 동작합니다. 실제 대회 키가 필요한 경우에만 `API_KEY`와 승인된 `LLM_MODEL` 별칭을 서버 환경에 추가하세요. **키가 있는 `.env`와 프로젝트 데이터는 커밋하지 않습니다.** Docker를 쓴다면 `docker compose up --build`로 API·worker·web을 함께 실행하고 `http://localhost:3000`을 여세요. 데모 토큰은 브라우저에 입력하지 않으며 Next.js 서버 프록시가 백엔드 요청에만 주입합니다.
 
 | 경로 | 역할 |
 | --- | --- |
@@ -44,10 +44,12 @@ PYTHONPATH=services/api ./.venv/bin/python -m app.worker
 ```sh
 cd apps/web
 npm ci
-NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
+export REPLAN_BACKEND_URL=http://localhost:8000
+export REPLAN_DEMO_TOKEN=local-demo-token
+npm run dev
 ```
 
-`http://localhost:3000`에서 첫 터미널의 bearer token을 입력하고 `REPLAN_demo_inputs.xlsx`를 업로드하세요. 미리보기 확인 후 기준 버전을 만들 수 있습니다. E01을 REPLAY 사건으로 등록해 분석하면 300만원 예산에서는 목표일 충족안이 없고, 예산을 600만원으로 재계산하면 OPT-03이 비용·마감 조건을 충족하지만 운송 예약 확인 조건은 남습니다. 조건 업무를 수락하고 승인해야 새 일정 버전을 확정할 수 있습니다.
+`http://localhost:3000`에서 데모로 진입한 뒤 `REPLAN_demo_inputs.xlsx`를 업로드하세요. 미리보기 확인 후 기준 버전을 만들 수 있습니다. E01을 REPLAY 사건으로 등록해 분석하면 300만원 예산에서는 목표일 충족안이 없고, 예산을 600만원으로 재계산하면 OPT-03이 비용·마감 조건을 충족하지만 운송 예약 확인 조건은 남습니다. 조건 업무를 수락하고 승인해야 새 일정 버전을 확정할 수 있습니다.
 
 Docker를 사용할 경우 `REPLAN_DEMO_TOKEN`을 설정한 뒤 `docker compose up --build`로 API·worker·web을 함께 실행할 수 있습니다. SQLite 데이터는 `replan_data` 볼륨에 유지됩니다. 깨끗한 데모가 필요하면 기존 볼륨을 지우는 대신 다른 `REPLAN_DATA_DIR`의 로컬 실행 환경 또는 별도 Compose 프로젝트 이름을 사용하세요.
 

@@ -43,7 +43,7 @@ type RunResult = {
   scenarios?: Array<Dict & { id?: string; data?: Dict }>;
 };
 
-const defaultApiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const defaultApiBase = "/api/proxy";
 
 function text(value: unknown, fallback = "-") {
   if (value === null || value === undefined || value === "") return fallback;
@@ -78,8 +78,7 @@ function scenarioScore(data: Dict) {
 }
 
 export default function Home({ initialProjectId = "" }: { initialProjectId?: string }) {
-  const [apiBase, setApiBase] = useState(defaultApiBase);
-  const [token, setToken] = useState("");
+  const apiBase = defaultApiBase;
   const [projectId, setProjectId] = useState("");
   const [project, setProject] = useState<ProjectState>({});
   const [preview, setPreview] = useState<ImportPreview | null>(null);
@@ -91,18 +90,16 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
   const [selectedScenarioId, setSelectedScenarioId] = useState("");
   const [manualMessage, setManualMessage] = useState("T03 공급사 FAT 완료가 2026-09-30으로 지연되었습니다. T04 출하는 2026-10-01 이후 가능합니다.");
   const [budget, setBudget] = useState(6000000);
-  const [notice, setNotice] = useState("토큰을 입력하고 프로젝트를 생성하세요.");
+  const [notice, setNotice] = useState("프로젝트를 생성하거나 불러오세요.");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
   useEffect(() => {
-    setToken(sessionStorage.getItem("replan.token") || "");
     setProjectId(initialProjectId || sessionStorage.getItem("replan.projectId") || "");
-    setApiBase(sessionStorage.getItem("replan.apiBase") || defaultApiBase);
   }, [initialProjectId]);
 
   useEffect(() => {
-    if (!initialProjectId || !token) return;
+    if (!initialProjectId) return;
     let active = true;
     setNotice("프로젝트 작업공간 불러오는 중...");
     callApi<ProjectState>(`/api/projects/${initialProjectId}`)
@@ -121,18 +118,14 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
     return () => {
       active = false;
     };
-  }, [initialProjectId, token]);
+  }, [initialProjectId]);
 
   useEffect(() => {
-    if (token) sessionStorage.setItem("replan.token", token);
     if (projectId) sessionStorage.setItem("replan.projectId", projectId);
-    if (apiBase) sessionStorage.setItem("replan.apiBase", apiBase);
-  }, [apiBase, projectId, token]);
+  }, [projectId]);
 
   async function callApi<T>(path: string, init: RequestInit = {}): Promise<T> {
-    if (!token) throw { status: 401, message: "데모 bearer token을 먼저 입력하세요." } satisfies ApiError;
     const headers = new Headers(init.headers);
-    headers.set("Authorization", `Bearer ${token}`);
     const response = await fetch(`${apiBase}${path}`, { ...init, headers });
     if (!response.ok) {
       let message = response.statusText;
@@ -482,14 +475,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
       <section className="workspace">
         <aside className="panel sidebar">
           <h2>1. 온보딩</h2>
-          <label>
-            API URL
-            <input value={apiBase} onChange={(event) => setApiBase(event.target.value)} />
-          </label>
-          <label>
-            Demo bearer token
-            <input type="password" value={token} onChange={(event) => setToken(event.target.value)} placeholder="REPLAN_DEMO_TOKEN" />
-          </label>
+          <small className="muted">서버 인증이 연결된 데모 작업공간입니다.</small>
           <form onSubmit={createProject} className="form-stack">
             <label>
               프로젝트명
@@ -513,7 +499,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
             <input value={projectId} onChange={(event) => setProjectId(event.target.value)} placeholder="기존 프로젝트 ID" />
           </label>
           <button className="secondary" onClick={() => refreshProject()} disabled={busy || !projectId}>프로젝트 불러오기</button>
-          <button className="secondary" onClick={loadProjects} disabled={busy || !token}>프로젝트 목록</button>
+          <button className="secondary" onClick={loadProjects} disabled={busy}>프로젝트 목록</button>
           {projects.length > 0 && <select value={projectId} onChange={(event) => { setProjectId(event.target.value); refreshProject(event.target.value); }}><option value="">프로젝트 선택</option>{projects.map((item) => <option key={text(item.id)} value={text(item.id)}>{text(item.name, text(item.id))}</option>)}</select>}
 
           <div className="divider" />

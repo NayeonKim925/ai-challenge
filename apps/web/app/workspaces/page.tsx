@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Dict = Record<string, unknown>;
-const defaultApiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function text(value: unknown, fallback = "-") {
   if (value === null || value === undefined || value === "") return fallback;
@@ -15,8 +14,7 @@ function text(value: unknown, fallback = "-") {
 
 export default function WorkspacesPage() {
   const router = useRouter();
-  const [token, setToken] = useState("");
-  const [apiBase, setApiBase] = useState(defaultApiBase);
+  const apiBase = "/api/proxy";
   const [projects, setProjects] = useState<Dict[]>([]);
   const [name, setName] = useState("해외 생산설비 도입 및 시운전");
   const [mode, setMode] = useState("REPLAY");
@@ -26,17 +24,12 @@ export default function WorkspacesPage() {
 
   async function api<T>(path: string, init: RequestInit = {}) {
     const headers = new Headers(init.headers);
-    headers.set("Authorization", `Bearer ${token}`);
     const response = await fetch(`${apiBase}${path}`, { ...init, headers });
-    if (!response.ok) throw new Error(response.status === 401 ? "토큰이 올바르지 않습니다." : await response.text());
+    if (!response.ok) throw new Error(await response.text());
     return response.json() as Promise<T>;
   }
 
   async function loadProjects() {
-    if (!token) {
-      router.replace("/demo");
-      return;
-    }
     setBusy(true);
     try {
       const value = await api<{ projects: Dict[] }>("/api/projects");
@@ -50,22 +43,8 @@ export default function WorkspacesPage() {
   }
 
   useEffect(() => {
-    const savedToken = sessionStorage.getItem("replan.token") || "";
-    const savedApiBase = sessionStorage.getItem("replan.apiBase") || defaultApiBase;
-    setToken(savedToken);
-    setApiBase(savedApiBase);
-    if (!savedToken) {
-      router.replace("/demo");
-      return;
-    }
-    fetch(`${savedApiBase}/api/projects`, { headers: { Authorization: `Bearer ${savedToken}` } })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(response.status === 401 ? "토큰이 올바르지 않습니다." : await response.text());
-        return response.json() as Promise<{ projects: Dict[] }>;
-      })
-      .then((value) => { setProjects(value.projects); setBusy(false); })
-      .catch((caught) => { setError(caught instanceof Error ? caught.message : "프로젝트를 불러오지 못했습니다."); setBusy(false); });
-  }, [router]);
+    void loadProjects();
+  }, []);
 
   async function createProject(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -88,7 +67,7 @@ export default function WorkspacesPage() {
     <main className="directory-page">
       <header className="directory-nav">
         <Link className="brand-lockup" href="/" aria-label="REPLAN 홈"><Image src="/brand/replan-wordmark.png" alt="REPLAN" width={1500} height={350} priority /></Link>
-        <div className="directory-nav-actions"><span className="demo-badge">DEMO WORKSPACE</span><Link className="text-link" href="/demo">토큰 변경</Link></div>
+        <div className="directory-nav-actions"><span className="demo-badge">DEMO WORKSPACE</span><Link className="text-link" href="/">홈으로</Link></div>
       </header>
       <section className="directory-head">
         <div><p className="eyebrow">WORKSPACE / PROJECTS</p><h1>프로젝트를 선택하세요.</h1><p>한 곳에서 프로젝트의 변경·영향·대응·승인을 관리합니다.</p></div>

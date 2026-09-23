@@ -191,8 +191,14 @@ def test_p1_document_mail_notifications_and_site_prep(client):
     mail = request(client, "put", f"/api/projects/{project_id}/mail-account", json={"provider": "imap", "host": "imap.example.com", "username": "ops@example.com"})
     assert mail["account"]["credentials_required"] is True
     uploaded = request(client, "post", f"/api/projects/{project_id}/documents", files={"file": ("notice.txt", "T03 공급사 일정이 하루 지연됩니다.".encode())})
-    assert uploaded["document"]["input_type"] == "text"
-    assert uploaded["event"]["event"]["channel"] == "document"
+    assert uploaded["status"] == "queued"
+    assert uploaded["document"]["status"] == "QUEUED"
+    assert run_once(Store())
+    processed = request(client, "get", f"/api/projects/{project_id}/documents/{uploaded['document_id']}")
+    assert processed["document"]["data"]["status"] == "SUCCEEDED"
+    assert processed["document"]["data"]["input_type"] == "text"
+    assert processed["run"]["status"] == "succeeded"
+    assert processed["run"]["data"]["event_id"]
     notifications = request(client, "get", f"/api/projects/{project_id}/notifications")
     assert notifications["notifications"]
     channel = request(client, "post", f"/api/projects/{project_id}/notification-channels", json={"channel": "email", "target": "ops@example.com"})
@@ -220,4 +226,14 @@ def test_p1_rejects_malformed_pdf(client):
         headers={"Authorization": "Bearer test-token"},
         files={"file": ("malformed.pdf", b"%PDF-1.7\nnot-a-valid-pdf")},
     )
-    assert response.status_code == 422
+    assert response.status_code == 202
+    uploaded = response.json()
+    assert uploaded["document"]["status"] == "QUEUED"
+    assert run_once(Store())
+    processed = client.get(
+        f"/api/projects/{project_id}/documents/{uploaded['document_id']}",
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert processed.status_code == 200
+    assert processed.json()["document"]["data"]["status"] == "FAILED"
+    assert processed.json()["run"]["status"] == "failed"

@@ -203,6 +203,60 @@ def _run_analysis(db: Store, run: dict[str, Any]) -> dict[str, Any]:
     return {"status": "succeeded", "summary": summary, "scenario_ids": scenario_ids, "agent_status": agent_output.get("status"), "agent": agent_output, "budget_krw": budget}
 
 
+def _run_document_ingest(db: Store, run: dict[str, Any]) -> dict[str, Any]:
+    """Parse an uploaded document off the request path and create its review event."""
+    from .importers import extract_document
+    from .main import notify_project
+
+    document_id = str((run.get("data") or {}).get("document_id") or "")
+    document = db.get_json("documents", document_id, run["project_id"])
+    if not document:
+        raise ValueError("document was removed")
+    record = dict(document["data"])
+    record["status"] = "PROCESSING"
+    db.put_json("documents", document_id, record, project_id=run["project_id"], created_at=document["created_at"])
+    try:
+        content = db.upload_path(document_id).read_bytes()
+        parsed = extract_document(record.get("filename") or "input.txt", content)
+        record.update(parsed)
+        record["status"] = "SUCCEEDED"
+        record["processed_at"] = utcnow()
+
+        event_id: str | None = None
+        version = db.current_version(run["project_id"])
+        if version and parsed.get("text", "").strip():
+            project = db.get_json("projects", run["project_id"])
+            raw = {
+                "channel": "email" if parsed["input_type"] == "email" else "document",
+                "source_label": record.get("filename") or "문서 입력",
+                "content": parsed["text"],
+                "mode": project["data"].get("mode", "LIVE") if project else "LIVE",
+                "data_origin": "USER",
+            }
+            event = normalize_event(raw, project["data"] if project else {}, version["data"]["tasks"])
+            fingerprint = digest({"document_id": document_id, "text": parsed["text"]})
+            event_id = identifier()
+            event["id"] = event_id
+            db.put_json("events", event_id, event, project_id=run["project_id"], fingerprint=fingerprint)
+            notify_project(
+                db,
+                run["project_id"],
+                "document_received",
+                "새 문서 입력",
+                f"{record.get('filename') or '문서'}에서 이벤트를 추출했습니다.",
+                data={"event_id": event_id, "document_id": document_id},
+            )
+            record["event_id"] = event_id
+        db.put_json("documents", document_id, record, project_id=run["project_id"], created_at=document["created_at"])
+        return {"status": "succeeded", "document_id": document_id, "event_id": event_id}
+    except Exception as exc:
+        record["status"] = "FAILED"
+        record["error"] = str(exc)[:500]
+        record["failed_at"] = utcnow()
+        db.put_json("documents", document_id, record, project_id=run["project_id"], created_at=document["created_at"])
+        raise
+
+
 def _store_source_snapshot(db: Store, project_id: str, result: dict[str, Any]) -> tuple[str, bool]:
     source_id = str(result.get("source_id") or "unknown")
     with db.connection() as conn:
@@ -384,6 +438,8 @@ def run_once(db: Store | None = None) -> bool:
             result = _run_analysis(db, run)
         elif run["kind"] == "scan":
             result = _run_scan(db, run)
+        elif run["kind"] == "document_ingest":
+            result = _run_document_ingest(db, run)
         else:
             raise ValueError("unsupported run kind")
         db.update_run(run["id"], "succeeded", result)

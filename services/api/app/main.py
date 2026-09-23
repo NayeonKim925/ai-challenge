@@ -265,36 +265,43 @@ def list_projects() -> dict[str, Any]:
 
 
 
-@app.post("/api/projects/{project_id}/documents", dependencies=[Depends(authorize)])
+@app.post("/api/projects/{project_id}/documents", status_code=202, dependencies=[Depends(authorize)])
 async def upload_document(project_id: str, file: UploadFile = File(...)) -> dict[str, Any]:
     db = store()
     project_or_404(db, project_id)
     content = await file.read(20 * 1024 * 1024 + 1)
     if len(content) > 20 * 1024 * 1024:
         raise HTTPException(413, "document exceeds 20 MiB")
-    try:
-        from .importers import extract_document
-
-        parsed = extract_document(file.filename or "input.txt", content)
-    except ValueError as exc:
-        raise HTTPException(422, str(exc)) from exc
     document_id = identifier()
     db.save_upload(document_id, content)
-    record = {**parsed, "document_id": document_id, "sha256": hashlib.sha256(content).hexdigest(), "size_bytes": len(content)}
+    filename = file.filename or "input.txt"
+    content_hash = hashlib.sha256(content).hexdigest()
+    record = {
+        "document_id": document_id,
+        "filename": filename,
+        "status": "QUEUED",
+        "input_type": None,
+        "sha256": content_hash,
+        "size_bytes": len(content),
+        "text": None,
+        "metadata": {},
+        "event_id": None,
+        "error": None,
+        "uploaded_at": utcnow(),
+    }
     db.put_json("documents", document_id, record, project_id=project_id)
-    event_result: dict[str, Any] | None = None
     version = db.current_version(project_id)
-    if version and parsed.get("text", "").strip():
-        project = db.get_json("projects", project_id)
-        raw = {"channel": "email" if parsed["input_type"] == "email" else "document", "source_label": file.filename or "문서 입력", "content": parsed["text"], "mode": project["data"].get("mode", "LIVE"), "data_origin": "USER"}
-        event = normalize_event(raw, project["data"], version["data"]["tasks"])
-        fingerprint = digest({"document_id": document_id, "text": parsed["text"]})
-        event_id = identifier()
-        event["id"] = event_id
-        db.put_json("events", event_id, event, project_id=project_id, fingerprint=fingerprint)
-        notify_project(db, project_id, "document_received", "새 문서 입력", f"{file.filename or '문서'}에서 이벤트를 추출했습니다.", data={"event_id": event_id, "document_id": document_id})
-        event_result = {"event_id": event_id, "event": event}
-    return {"document_id": document_id, "document": record, "event": event_result}
+    run = db.create_run(
+        project_id,
+        "document_ingest",
+        None,
+        version["id"] if version else None,
+        f"document:{document_id}",
+        {"document_id": document_id},
+    )
+    record["run_id"] = run["id"]
+    db.put_json("documents", document_id, record, project_id=project_id, created_at=db.get_json("documents", document_id, project_id)["created_at"])
+    return {"document_id": document_id, "job_id": run["id"], "status": run["status"], "document": record, "event": None}
 
 
 @app.get("/api/projects/{project_id}/documents", dependencies=[Depends(authorize)])
@@ -302,6 +309,18 @@ def list_documents(project_id: str) -> dict[str, Any]:
     db = store()
     project_or_404(db, project_id)
     return {"documents": db.list_json("documents", project_id)}
+
+
+@app.get("/api/projects/{project_id}/documents/{document_id}", dependencies=[Depends(authorize)])
+def get_document(project_id: str, document_id: str) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    document = db.get_json("documents", document_id, project_id)
+    if not document:
+        raise HTTPException(404, "document not found")
+    run_id = document["data"].get("run_id")
+    run = db.get_json("runs", run_id, project_id) if run_id else None
+    return {"document": document, "run": run}
 
 
 @app.put("/api/projects/{project_id}/mail-account", dependencies=[Depends(authorize)])

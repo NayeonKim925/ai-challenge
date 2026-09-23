@@ -85,6 +85,7 @@ export default function Home() {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [documentStatus, setDocumentStatus] = useState<Dict | null>(null);
   const [projects, setProjects] = useState<Dict[]>([]);
   const [run, setRun] = useState<RunResult | null>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState("");
@@ -177,10 +178,33 @@ export default function Home() {
     if (!projectId || !documentFile) return;
     const body = new FormData();
     body.append("file", documentFile);
-    await guarded("문서·메일 입력", () => callApi<Dict>(`/api/projects/${projectId}/documents`, { method: "POST", body }), async () => {
+    const uploaded = await guarded("문서·메일 입력", () => callApi<Dict>(`/api/projects/${projectId}/documents`, { method: "POST", body }), (value) => {
+      setDocumentStatus((value.document as Dict) || null);
       setDocumentFile(null);
-      await refreshProject(projectId);
     });
+    if (uploaded?.document_id) await pollDocument(String(uploaded.document_id));
+  }
+
+  async function pollDocument(documentId: string) {
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      try {
+        const result = await callApi<Dict>(`/api/projects/${projectId}/documents/${documentId}`);
+        const document = (result.document as Dict)?.data as Dict | undefined;
+        setDocumentStatus(document || null);
+        const status = String(document?.status || "");
+        if (status === "SUCCEEDED" || status === "FAILED") {
+          await refreshProject(projectId);
+          setNotice(status === "SUCCEEDED" ? "문서 처리가 완료되었습니다." : "문서 처리에 실패했습니다.");
+          return;
+        }
+      } catch (caught) {
+        const apiError = caught as ApiError;
+        setError(apiError.status ? apiError : { status: 0, message: String(caught) });
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    setNotice("문서 처리 대기 중입니다. worker 상태를 확인하세요.");
   }
 
   async function createSitePrep() {
@@ -477,7 +501,14 @@ export default function Home() {
           <h2>P1 문서 입력</h2>
           <input type="file" accept=".pdf,.txt,.md,.eml" onChange={(event: ChangeEvent<HTMLInputElement>) => setDocumentFile(event.target.files?.[0] || null)} />
           <button onClick={uploadDocument} disabled={busy || !documentFile || !projectId}>PDF·메일 텍스트 입력</button>
-          <small className="muted">PDF/TXT/MD/EML은 이벤트 검토 대기 상태로 저장됩니다.</small>
+          <small className="muted">업로드 후 worker가 파싱하고, 완료되면 검토 이벤트를 생성합니다.</small>
+          {documentStatus && (
+            <div className="preview">
+              <b>{text(documentStatus.filename)} · {text(documentStatus.status)}</b>
+              {Boolean(documentStatus.error) && <small className="muted">{text(documentStatus.error)}</small>}
+              {Boolean(documentStatus.event_id) && <small className="muted">이벤트 {shortId(documentStatus.event_id)}</small>}
+            </div>
+          )}
         </aside>
 
         <section className="panel main-panel">

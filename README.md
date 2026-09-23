@@ -55,7 +55,7 @@ API 문서는 `http://localhost:8000/docs`에 있습니다. 분석/수집은 큐
 
 ### P1 운영 입력·연동
 
-- `/api/projects/{project_id}/documents`가 PDF/TXT/MD/EML을 원본과 추출 텍스트로 보존하고, baseline이 있으면 검토용 이벤트를 만듭니다. PDF는 `pypdf`로 텍스트만 추출합니다.
+- `/api/projects/{project_id}/documents`는 PDF/TXT/MD/EML 원본을 저장하고 `202 QUEUED`를 반환합니다. worker가 파싱을 끝내면 `SUCCEEDED/FAILED` 상태와 검토용 이벤트를 기록합니다. PDF는 `pypdf`로 텍스트만 추출합니다.
 - `/api/projects/{project_id}/mail-account`는 IMAP/Gmail/Outlook 연결 메타데이터만 저장합니다. 비밀번호·OAuth 토큰은 저장하지 않으며 실제 메일 수집은 별도 인증 작업이 필요합니다.
 - `/api/projects/{project_id}/public-feeds`로 허용 호스트의 RSS/Atom URL을 등록하고 기존 감시계획에 합칠 수 있습니다. 피드 내용은 여전히 검토 사건입니다.
 - 공급사 휴무일은 `/supplier-calendars`로 등록되어 시뮬레이터의 작업 가능일에서 제외됩니다.

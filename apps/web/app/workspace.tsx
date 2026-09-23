@@ -20,6 +20,9 @@ type ProjectState = {
   actions?: Array<Dict & { id?: string; scenario_id?: string; data?: Dict }>;
   documents?: Array<Dict & { id?: string; data?: Dict }>;
   notifications?: Array<Dict & { id?: string; data?: Dict }>;
+  public_feeds?: Array<Dict & { id?: string; data?: Dict }>;
+  mail_account?: Dict | null;
+  decision_deadlines?: Array<Dict & { id?: string }>;
   site_prep_items?: Array<Dict & { id?: string; data?: Dict }>;
   supplier_calendars?: Array<Dict & { id?: string; data?: Dict }>;
   demo_events?: Dict[];
@@ -85,6 +88,10 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [documentStatus, setDocumentStatus] = useState<Dict | null>(null);
+  const [mailForm, setMailForm] = useState({ provider: "imap", host: "", username: "", folder: "INBOX" });
+  const [feedForm, setFeedForm] = useState({ label: "환경 정책 RSS", url: "https://environment.ec.europa.eu/news_en", kind: "rss" });
+  const [supplierForm, setSupplierForm] = useState({ supplier_id: "", label: "", unavailable_dates: "", timezone: "Asia/Seoul" });
+  const [channelForm, setChannelForm] = useState({ channel: "in_app", label: "REPLAN 인앱 알림", target: "" });
   const [projects, setProjects] = useState<Dict[]>([]);
   const [run, setRun] = useState<RunResult | null>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState("");
@@ -229,6 +236,50 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
       setDocumentStatus((value.document as Dict) || null);
     });
     if (retried?.document_id) await pollDocument(String(retried.document_id));
+  }
+
+  async function saveMailAccount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await guarded("메일 연결 메타데이터 저장", () => callApi<Dict>(`/api/projects/${projectId}/mail-account`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...mailForm, enabled: true }),
+    }), async () => refreshProject(projectId));
+  }
+
+  async function savePublicFeed(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await guarded("공개 피드 등록", () => callApi<Dict>(`/api/projects/${projectId}/public-feeds`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...feedForm, enabled: true }),
+    }), async () => refreshProject(projectId));
+  }
+
+  async function saveSupplierCalendar(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const unavailable_dates = supplierForm.unavailable_dates.split(",").map((value) => value.trim()).filter(Boolean);
+    await guarded("공급사 일정 저장", () => callApi<Dict>(`/api/projects/${projectId}/supplier-calendars`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ supplier_id: supplierForm.supplier_id, label: supplierForm.label, unavailable_dates, timezone: supplierForm.timezone }),
+    }), async () => {
+      setSupplierForm((current) => ({ ...current, unavailable_dates: "" }));
+      await refreshProject(projectId);
+    });
+  }
+
+  async function saveNotificationChannel(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await guarded("알림 채널 저장", () => callApi<Dict>(`/api/projects/${projectId}/notification-channels`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...channelForm, enabled: true }),
+    }), async () => refreshProject(projectId));
+  }
+
+  async function markNotification(notificationId: string) {
+    await guarded("알림 확인", () => callApi<Dict>(`/api/notifications/${notificationId}`, { method: "PATCH" }), async () => refreshProject(projectId));
   }
 
   async function createSitePrep() {
@@ -593,6 +644,50 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
             <span>공급사 캘린더 {project.supplier_calendars?.length || 0}건 · 현장 준비 {project.site_prep_items?.length || 0}건</span>
             <button className="secondary" onClick={createSitePrep} disabled={!projectId || busy}>현장 준비 템플릿 적용</button>
           </div>
+
+          <section className="p1-operations" aria-labelledby="p1-operations-title">
+            <div className="section-head compact"><div><h3 id="p1-operations-title">운영 입력</h3><p>외부 입력은 저장·검토까지만 진행합니다.</p></div></div>
+
+            <form className="p1-form" onSubmit={savePublicFeed}>
+              <div className="p1-form-title"><b>공개 피드</b><span>{project.public_feeds?.length || 0}개 등록</span></div>
+              <input aria-label="피드 이름" value={feedForm.label} onChange={(event) => setFeedForm({ ...feedForm, label: event.target.value })} placeholder="피드 이름" />
+              <input aria-label="피드 URL" type="url" value={feedForm.url} onChange={(event) => setFeedForm({ ...feedForm, url: event.target.value })} placeholder="https://허용된-공식-출처" />
+              <button className="secondary" type="submit" disabled={!projectId || busy}>피드 등록</button>
+              {(project.public_feeds || []).slice(0, 2).map((item) => <small className="p1-record" key={text(item.id || item.data?.feed_id)}>{text(item.data?.label)} · {text(item.data?.url)}</small>)}
+            </form>
+
+            <form className="p1-form" onSubmit={saveSupplierCalendar}>
+              <div className="p1-form-title"><b>공급사 캘린더</b><span>{project.supplier_calendars?.length || 0}개 등록</span></div>
+              <input aria-label="공급사 ID" value={supplierForm.supplier_id} onChange={(event) => setSupplierForm({ ...supplierForm, supplier_id: event.target.value })} placeholder="공급사 ID" required />
+              <input aria-label="공급사 캘린더 이름" value={supplierForm.label} onChange={(event) => setSupplierForm({ ...supplierForm, label: event.target.value })} placeholder="캘린더 이름" required />
+              <input aria-label="공급사 휴무일" value={supplierForm.unavailable_dates} onChange={(event) => setSupplierForm({ ...supplierForm, unavailable_dates: event.target.value })} placeholder="휴무일: 2026-10-03, 2026-10-04" />
+              <button className="secondary" type="submit" disabled={!projectId || busy}>일정 저장</button>
+            </form>
+
+            <form className="p1-form" onSubmit={saveMailAccount}>
+              <div className="p1-form-title"><b>메일 연결 메타데이터</b><span>{text(project.mail_account?.status, "미설정")}</span></div>
+              <div className="p1-inline-fields"><select aria-label="메일 제공자" value={mailForm.provider} onChange={(event) => setMailForm({ ...mailForm, provider: event.target.value })}><option value="imap">IMAP</option><option value="gmail">Gmail</option><option value="outlook">Outlook</option></select><input aria-label="메일 호스트" value={mailForm.host} onChange={(event) => setMailForm({ ...mailForm, host: event.target.value })} placeholder="imap.example.com" required /></div>
+              <input aria-label="메일 사용자" value={mailForm.username} onChange={(event) => setMailForm({ ...mailForm, username: event.target.value })} placeholder="담당자 이메일" required />
+              <button className="secondary" type="submit" disabled={!projectId || busy}>연결 정보 저장</button>
+              <small className="muted">비밀번호·OAuth 토큰은 저장하지 않습니다.</small>
+            </form>
+
+            <form className="p1-form" onSubmit={saveNotificationChannel}>
+              <div className="p1-form-title"><b>알림 채널</b><span>외부 발송은 초안</span></div>
+              <div className="p1-inline-fields"><select aria-label="알림 채널 유형" value={channelForm.channel} onChange={(event) => setChannelForm({ ...channelForm, channel: event.target.value })}><option value="in_app">인앱</option><option value="email">이메일 초안</option><option value="slack">Slack 초안</option><option value="webhook">Webhook 초안</option></select><input aria-label="알림 대상" value={channelForm.target} onChange={(event) => setChannelForm({ ...channelForm, target: event.target.value })} placeholder="대상 또는 채널" /></div>
+              <button className="secondary" type="submit" disabled={!projectId || busy}>채널 저장</button>
+            </form>
+
+            <div className="p1-notifications">
+              <div className="p1-form-title"><b>알림 기록</b><span>{project.notifications?.length || 0}건</span></div>
+              {(project.notifications || []).slice(0, 4).map((notification) => {
+                const data = notification.data || notification;
+                const notificationId = text(notification.id || data.id, "");
+                return <div className="p1-notification" key={notificationId}><div><b>{text(data.title, "알림")}</b><small>{text(data.message, text(data.body))}</small></div>{data.status === "UNREAD" && <button className="text-button" onClick={() => markNotification(notificationId)} disabled={busy}>확인</button>}</div>;
+              })}
+              {!project.notifications?.length && <small className="muted">새 알림이 생기면 여기에 표시됩니다.</small>}
+            </div>
+          </section>
 
           <div className="button-row">
             <button onClick={createEventFromDemo} disabled={!project.demo_events?.length || busy}>REPLAY E01</button>

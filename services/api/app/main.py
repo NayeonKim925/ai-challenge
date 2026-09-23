@@ -502,6 +502,7 @@ def get_project(project_id: str) -> dict[str, Any]:
     project = project_or_404(db, project_id)
     version = db.current_version(project_id)
     watch = db.get_json("watch_plans", project_id)
+    mail_account = db.get_json("mail_accounts", f"mail-{project_id}", project_id)
     return {
         "project": project["data"],
         "version": version,
@@ -512,8 +513,11 @@ def get_project(project_id: str) -> dict[str, Any]:
         "actions": db.list_json("actions", project_id),
         "documents": db.list_json("documents", project_id),
         "notifications": db.list_json("notifications", project_id),
+        "public_feeds": db.list_json("public_feeds", project_id),
+        "mail_account": mail_account["data"] if mail_account else None,
         "site_prep_items": db.list_json("site_prep_items", project_id),
         "supplier_calendars": db.list_json("supplier_calendars", project_id),
+        "decision_deadlines": [{"id": item["id"], **item["data"]} for item in db.list_json("actions", project_id) if item["data"].get("due_at")],
         "demo_events": version["data"].get("demo_events", []) if version else [],
     }
 

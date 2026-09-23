@@ -316,6 +316,117 @@ main {
   color: var(--ink);
 }
 
+.p1-operations {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.section-head.compact {
+  margin: 0;
+  align-items: end;
+}
+
+.section-head.compact h3 {
+  margin-bottom: 3px;
+}
+
+.section-head.compact p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.p1-form,
+.p1-notifications {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fffefa;
+  padding: 10px;
+}
+
+.p1-form-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.p1-form-title span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.p1-inline-fields {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr);
+  gap: 7px;
+}
+
+.p1-record {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.p1-notifications {
+  gap: 0;
+}
+
+.p1-notification {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding: 9px 0;
+}
+
+.p1-notification:first-of-type {
+  margin-top: 4px;
+}
+
+.p1-notification > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.p1-notification b {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.p1-notification small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-button {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 0;
+}
+
 .preview,
 .watch-card,
 .approval-card,

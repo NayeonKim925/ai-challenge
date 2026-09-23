@@ -22,6 +22,8 @@ cp .env.example .env
 | `REPLAN_PROJECT_MASTER.md` | 제품 기획·데모 계약 |
 | `DESIGN.md` | 앞으로의 화면 구현 기준과 미결정 사항 |
 
+연동 범위와 운영 전 결정사항은 [`docs/INTEGRATION_MATRIX.md`](docs/INTEGRATION_MATRIX.md)에 기록합니다. GitHub Actions는 Python 테스트·REPLAY 평가·웹 빌드·Compose 설정을 PR마다 검증합니다.
+
 현재 저장소는 단일 프로젝트·공유 데모 토큰·SQLite 기반의 MVP입니다. 인터넷 공개 운영용 인증/권한/백업을 갖춘 서비스로 보지 마세요. UI를 수정할 때는 [DESIGN.md](DESIGN.md)를 먼저 읽고, 변경 전후의 핵심 흐름을 테스트하세요. 로컬 `.lazyweb/` 연구 산출물은 생성 자료와 제3자 참고 이미지를 포함해 Git에 올리지 않고, 실행 가능한 디자인 기준만 `DESIGN.md`에 남깁니다.
 
 ## 로컬 실행

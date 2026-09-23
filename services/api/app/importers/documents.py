@@ -55,9 +55,18 @@ def extract_document(filename: str, content: bytes) -> dict[str, Any]:
             raise ValueError("PDF support requires the pypdf package") from exc
         try:
             reader = PdfReader(io.BytesIO(content), strict=False)
-            pages = [(page.extract_text() or "") for page in reader.pages[:100]]
+            if len(reader.pages) > 100:
+                raise ValueError("PDF has more than 100 pages")
+            pages: list[str] = []
+            total_chars = 0
+            for page in reader.pages:
+                value = page.extract_text() or ""
+                remaining = max(0, 200000 - total_chars)
+                pages.append(value[:remaining])
+                total_chars += len(value)
+                if total_chars >= 200000:
+                    break
         except Exception as exc:
             raise ValueError("Invalid or unreadable PDF") from exc
         return {"input_type": "pdf", "filename": filename, "text": "\n\n".join(pages)[:200000], "metadata": {"page_count": len(reader.pages)}}
     raise ValueError("Unsupported document type; expected .pdf, .txt, .md, or .eml")
-

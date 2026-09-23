@@ -185,3 +185,13 @@ def test_p1_supplier_calendar_and_feed_registration(client, monkeypatch):
     assert "2026-10-03" in calendar["supplier_unavailable_dates"]
     project = request(client, "get", f"/api/projects/{project_id}")
     assert "2026-10-03" in project["project"]["supplier_unavailable_dates"]
+
+
+def test_p1_rejects_malformed_pdf(client):
+    project_id, _, _ = baseline(client)
+    response = client.post(
+        f"/api/projects/{project_id}/documents",
+        headers={"Authorization": "Bearer test-token"},
+        files={"file": ("malformed.pdf", b"%PDF-1.7\nnot-a-valid-pdf")},
+    )
+    assert response.status_code == 422

@@ -490,6 +490,11 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
     }, {});
   }, [selectedScenario]);
 
+  const unreadNotifications = project.notifications?.filter((item) => item.data?.status === "UNREAD").length || 0;
+  const openActions = project.actions?.filter((item) => String(item.data?.state || "OPEN") === "OPEN").length || 0;
+  const eventCount = project.events?.length || 0;
+  const runCount = project.runs?.length || 0;
+
   return (
     <main>
       <header className="brand-bar" aria-label="REPLAN workspace">
@@ -523,8 +528,15 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
         </aside>
       )}
 
+      <section className="workspace-summary" aria-label="프로젝트 요약">
+        <article className="summary-card summary-card-primary"><span>DECISION QUEUE</span><strong>{eventCount ? `${eventCount}건 검토 필요` : "기준 일정 연결 필요"}</strong><small>{eventCount ? "새 변경과 영향 분석을 확인하세요." : "Excel을 올리면 프로젝트 맥락이 시작됩니다."}</small></article>
+        <article className="summary-card"><span>최근 변경</span><strong>{eventCount || "—"}</strong><small>{eventCount ? "저장된 이벤트" : "아직 변경 없음"}</small></article>
+        <article className="summary-card"><span>승인 대기</span><strong>{unreadNotifications || "—"}</strong><small>{unreadNotifications ? "확인하지 않은 알림" : "결정 큐가 비어 있습니다"}</small></article>
+        <article className="summary-card"><span>실행 항목</span><strong>{openActions || "—"}</strong><small>{openActions ? "열린 업무" : `${runCount || 0}개 분석 실행`}</small></article>
+      </section>
+
       <section className="workspace">
-        <aside className="panel sidebar">
+        <aside className="panel sidebar" id="onboarding">
           <h2>1. 온보딩</h2>
           <small className="muted">서버 인증이 연결된 데모 작업공간입니다.</small>
           <form onSubmit={createProject} className="form-stack">
@@ -583,12 +595,18 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
         <section className="panel main-panel" id="schedule">
           <div className="section-head">
             <div id="changes">
-              <h2>Timeline</h2>
+              <p className="eyebrow">PROJECT PULSE</p>
+              <h2>기준 일정과 변경 영향</h2>
               <p>기준 버전 {shortId(project.version?.id)} · hash {shortId(project.version?.content_hash)}</p>
             </div>
             <button className="secondary" onClick={downloadExport} disabled={!project.version}>Excel-out</button>
           </div>
-          <Gantt tasks={tasks} scenarioSchedule={scenarioSchedule} />
+          {!tasks.length ? (
+            <div className="workspace-empty-state">
+              <div className="workspace-empty-index">01</div>
+              <div><p className="eyebrow">BASELINE REQUIRED</p><h3>결정 전에 기준 일정을 연결하세요.</h3><p>Excel을 업로드하면 작업·선후행·자원 조건을 확인하고, 이후 변경의 영향과 대응안을 같은 기준으로 비교할 수 있습니다.</p><a href="#onboarding">왼쪽에서 Excel 업로드 시작 <span aria-hidden="true">↗</span></a></div>
+            </div>
+          ) : <Gantt tasks={tasks} scenarioSchedule={scenarioSchedule} />}
 
           <div className="timeline-grid">
             <div>
@@ -624,6 +642,12 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
 
         <aside className="panel decision">
           <h2>3. 감시·분석·승인</h2>
+          <div className="decision-lead">
+            <p className="eyebrow">NEXT DECISION</p>
+            <h3>{eventCount ? "새 변경의 영향을 확인하세요." : "첫 결정을 위한 근거를 준비하세요."}</h3>
+            <p>{eventCount ? "이벤트 타임라인에서 근거를 확인하고 분석 Run을 실행합니다." : "감시 계획과 기준 Excel을 먼저 연결하면 다음 행동이 선명해집니다."}</p>
+            <span>{eventCount ? `${eventCount}건의 변경 기록` : "아직 기준 버전 없음"}</span>
+          </div>
           <div className="watch-card">
             <b>Watch plan</b>
             <span className={project.watch_plan?.enabled ? "pill ok" : "pill"}>{project.watch_plan?.enabled ? "enabled" : "disabled"}</span>

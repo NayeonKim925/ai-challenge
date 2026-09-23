@@ -12,6 +12,7 @@ import html
 import ipaddress
 import re
 import socket
+from xml.etree import ElementTree as ET
 from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import urlparse, urlunparse
@@ -97,9 +98,10 @@ def fetch_registered_source(
         content_type = response.headers.get("content-type", "")
         raw = response.content[:MAX_BODY_BYTES]
         text = _decode_response_text(raw, response.encoding)
-        title = _extract_title(text) or _canonical_url(str(response.url))
-        content = _extract_visible_text(text, content_type)
-        summary = _summarize(content)
+        feed = _extract_feed(text)
+        title = feed.get("title") or _extract_title(text) or _canonical_url(str(response.url))
+        content = feed.get("content") or _extract_visible_text(text, content_type)
+        summary = feed.get("summary") or _summarize(content)
         return {
             "status": "ok",
             "source_id": _source_id(str(response.url)),
@@ -110,6 +112,7 @@ def fetch_registered_source(
             "content": content[:MAX_CONTENT_CHARS],
             "body_hash": _hash_text(_normalize_text(content)),
             "content_type": content_type,
+            "feed_items": feed.get("items", []),
         }
     except (httpx.HTTPError, ValueError, UnicodeDecodeError) as exc:
         return _error("error", source_id, fetched_at, str(exc), url=url)
@@ -216,6 +219,37 @@ def _daily_rows(daily: dict[str, Any]) -> list[dict[str, Any]]:
 
 def _decode_response_text(raw: bytes, encoding: str | None) -> str:
     return raw.decode(encoding or "utf-8", errors="replace")
+
+
+def _extract_feed(text: str) -> dict[str, Any]:
+    """Read RSS/Atom metadata when a registered public source is a feed."""
+    stripped = text.lstrip()
+    if not stripped.startswith("<") or not any(marker in stripped[:500].lower() for marker in ("<rss", "<feed", "<rdf:rdf")):
+        return {}
+    try:
+        root = ET.fromstring(text)
+    except ET.ParseError:
+        return {}
+    def value(node: ET.Element | None, names: tuple[str, ...]) -> str:
+        if node is None:
+            return ""
+        for child in list(node):
+            if child.tag.rsplit("}", 1)[-1].lower() in names and (child.text or "").strip():
+                return (child.text or "").strip()
+        return ""
+    items: list[dict[str, str]] = []
+    for node in list(root.iter()):
+        if node.tag.rsplit("}", 1)[-1].lower() not in {"item", "entry"}:
+            continue
+        item = {"title": value(node, ("title",)), "summary": value(node, ("description", "summary", "content")), "published_at": value(node, ("pubdate", "published", "updated"))}
+        if item["title"] or item["summary"]:
+            items.append(item)
+        if len(items) >= 20:
+            break
+    channel = next((node for node in root.iter() if node.tag.rsplit("}", 1)[-1].lower() in {"channel", "feed"}), root)
+    feed_title = value(channel, ("title",))
+    latest = items[0] if items else {}
+    return {"title": feed_title or latest.get("title", ""), "summary": latest.get("summary", ""), "content": "\n".join(f"{item['title']}: {item['summary']}" for item in items), "items": items}
 
 
 def _extract_title(text: str) -> str | None:

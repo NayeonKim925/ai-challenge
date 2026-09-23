@@ -79,7 +79,8 @@ def _run_analysis(db: Store, run: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("event or version was removed")
     event = event_row["data"]
     snapshot = version["data"]
-    project = snapshot["project"]
+    current_profile = db.get_json("projects", run["project_id"])
+    project = {**snapshot["project"], **(current_profile["data"] if current_profile else {})}
     tasks = snapshot["tasks"]
     options = snapshot.get("options", [])
     budget = run["data"].get("budget_krw")

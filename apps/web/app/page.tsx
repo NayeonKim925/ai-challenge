@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 type Dict = Record<string, unknown>;
 
@@ -17,6 +18,10 @@ type ProjectState = {
   source_snapshots?: Array<Dict & { id?: string; source_id?: string; status?: string; fetched_at?: string; data?: Dict }>;
   runs?: Array<Dict & { id?: string; data?: Dict; status?: string; kind?: string }>;
   actions?: Array<Dict & { id?: string; scenario_id?: string; data?: Dict }>;
+  documents?: Array<Dict & { id?: string; data?: Dict }>;
+  notifications?: Array<Dict & { id?: string; data?: Dict }>;
+  site_prep_items?: Array<Dict & { id?: string; data?: Dict }>;
+  supplier_calendars?: Array<Dict & { id?: string; data?: Dict }>;
   demo_events?: Dict[];
 };
 
@@ -79,6 +84,8 @@ export default function Home() {
   const [project, setProject] = useState<ProjectState>({});
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [projects, setProjects] = useState<Dict[]>([]);
   const [run, setRun] = useState<RunResult | null>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState("");
   const [manualMessage, setManualMessage] = useState("T03 공급사 FAT 완료가 2026-09-30으로 지연되었습니다. T04 출하는 2026-10-01 이후 가능합니다.");
@@ -146,7 +153,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.get("name") || "RE:PLAN 데모 프로젝트",
+          name: form.get("name") || "REPLAN 데모 프로젝트",
           mode: form.get("mode") || "REPLAY",
           extra_budget_krw: Number(form.get("budget") || 3000000),
         }),
@@ -160,6 +167,24 @@ export default function Home() {
   async function refreshProject(id = projectId) {
     if (!id) return null;
     return guarded("프로젝트 새로고침", () => callApi<ProjectState>(`/api/projects/${id}`), (value) => setProject(value));
+  }
+
+  async function loadProjects() {
+    await guarded("프로젝트 목록 조회", () => callApi<{ projects: Dict[] }>("/api/projects"), (value) => setProjects(value.projects));
+  }
+
+  async function uploadDocument() {
+    if (!projectId || !documentFile) return;
+    const body = new FormData();
+    body.append("file", documentFile);
+    await guarded("문서·메일 입력", () => callApi<Dict>(`/api/projects/${projectId}/documents`, { method: "POST", body }), async () => {
+      setDocumentFile(null);
+      await refreshProject(projectId);
+    });
+  }
+
+  async function createSitePrep() {
+    await guarded("현장 준비 체크리스트", () => callApi<Dict>(`/api/projects/${projectId}/site-prep`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ template_id: "equipment_installation_v1" }) }), async () => refreshProject(projectId));
   }
 
   async function uploadImport() {
@@ -368,11 +393,22 @@ export default function Home() {
 
   return (
     <main>
+      <header className="brand-bar" aria-label="REPLAN workspace">
+        <a className="brand-lockup" href="/" aria-label="REPLAN 홈">
+          <Image src="/brand/replan-wordmark.png" alt="REPLAN" width={1500} height={350} priority />
+        </a>
+        <div className="brand-context">
+          <span className="brand-context-dot" aria-hidden="true" />
+          <span>운영 콘솔</span>
+          <span className="brand-divider" aria-hidden="true" />
+          <span>Schedule intelligence</span>
+        </div>
+      </header>
       <section className="hero">
         <div>
-          <p className="eyebrow">RE:PLAN MVP</p>
+          <p className="eyebrow">PROJECT CONTROL / 01</p>
           <h1>엑셀 일정이 바뀌는 순간, 대응안까지 한 화면에서 닫습니다.</h1>
-          <p className="subtitle">Excel-in, 감시 계획, 이벤트 분석, 시나리오 승인, Excel-out을 현재 FastAPI 엔드포인트에 연결한 데모 콘솔입니다.</p>
+          <p className="subtitle">변경의 근거와 일정 영향을 확인하고, 실행 가능한 대응안을 승인합니다.</p>
         </div>
         <div className="status-card">
           <span className={`mode ${text((project.project || {}).mode, "LIVE").toLowerCase()}`}>{text((project.project || {}).mode, "LIVE")}</span>
@@ -422,6 +458,8 @@ export default function Home() {
             <input value={projectId} onChange={(event) => setProjectId(event.target.value)} placeholder="기존 프로젝트 ID" />
           </label>
           <button className="secondary" onClick={() => refreshProject()} disabled={busy || !projectId}>프로젝트 불러오기</button>
+          <button className="secondary" onClick={loadProjects} disabled={busy || !token}>프로젝트 목록</button>
+          {projects.length > 0 && <select value={projectId} onChange={(event) => { setProjectId(event.target.value); refreshProject(event.target.value); }}><option value="">프로젝트 선택</option>{projects.map((item) => <option key={text(item.id)} value={text(item.id)}>{text(item.name, text(item.id))}</option>)}</select>}
 
           <div className="divider" />
           <h2>2. Excel import</h2>
@@ -435,6 +473,11 @@ export default function Home() {
               <button onClick={confirmImport} disabled={busy}>확인 후 저장</button>
             </div>
           )}
+          <div className="divider" />
+          <h2>P1 문서 입력</h2>
+          <input type="file" accept=".pdf,.txt,.md,.eml" onChange={(event: ChangeEvent<HTMLInputElement>) => setDocumentFile(event.target.files?.[0] || null)} />
+          <button onClick={uploadDocument} disabled={busy || !documentFile || !projectId}>PDF·메일 텍스트 입력</button>
+          <small className="muted">PDF/TXT/MD/EML은 이벤트 검토 대기 상태로 저장됩니다.</small>
         </aside>
 
         <section className="panel main-panel">
@@ -494,6 +537,12 @@ export default function Home() {
                 {text(source.source_id)} · {source.status === "ok" ? "수집됨" : `수집 실패: ${text(source.data?.error, text(source.status))}`} · {text(source.fetched_at)}
               </small>
             ))}
+          </div>
+          <div className="p1-card">
+            <b>P1 운영 준비</b>
+            <span>미확인 알림 {project.notifications?.filter((item) => item.data?.status === "UNREAD").length || 0}건</span>
+            <span>공급사 캘린더 {project.supplier_calendars?.length || 0}건 · 현장 준비 {project.site_prep_items?.length || 0}건</span>
+            <button className="secondary" onClick={createSitePrep} disabled={!projectId || busy}>현장 준비 템플릿 적용</button>
           </div>
 
           <div className="button-row">

@@ -98,6 +98,7 @@ def test_e01_budget_replan_approval_commit_and_export(client):
     assert unapproved.status_code == 409
     prepared = request(client, "post", f"/api/scenarios/{scenario_id}/prepare")
     assert len(prepared["actions"]) == 1
+    assert prepared["actions"][0]["data"]["due_at"] == "2026-09-11"
     pending = client.post(
         f"/api/scenarios/{scenario_id}/approve", headers={"Authorization": "Bearer test-token"},
         json={"actor": "demo-admin", "confirmed_conditions": option["data"]["required_confirmations"]},
@@ -157,3 +158,30 @@ def test_revised_excel_requires_diff_confirmation(client):
 
 def test_demo_auth_required(client):
     assert client.get("/api/projects").status_code == 401
+
+
+def test_p1_document_mail_notifications_and_site_prep(client):
+    project_id, preview, _ = baseline(client)
+    mail = request(client, "put", f"/api/projects/{project_id}/mail-account", json={"provider": "imap", "host": "imap.example.com", "username": "ops@example.com"})
+    assert mail["account"]["credentials_required"] is True
+    uploaded = request(client, "post", f"/api/projects/{project_id}/documents", files={"file": ("notice.txt", "T03 공급사 일정이 하루 지연됩니다.".encode())})
+    assert uploaded["document"]["input_type"] == "text"
+    assert uploaded["event"]["event"]["channel"] == "document"
+    notifications = request(client, "get", f"/api/projects/{project_id}/notifications")
+    assert notifications["notifications"]
+    channel = request(client, "post", f"/api/projects/{project_id}/notification-channels", json={"channel": "email", "target": "ops@example.com"})
+    assert channel["channel"]["delivery_mode"] == "DRAFT"
+    prep = request(client, "post", f"/api/projects/{project_id}/site-prep", json={})
+    assert len(prep["items"]) == 4
+    assert request(client, "get", f"/api/projects/{project_id}/documents")["documents"]
+
+
+def test_p1_supplier_calendar_and_feed_registration(client, monkeypatch):
+    project_id = request(client, "post", "/api/projects", json={"mode": "LIVE"})["project_id"]
+    monkeypatch.setenv("REPLAN_ALLOWED_SOURCE_HOSTS", "environment.ec.europa.eu")
+    feed = request(client, "post", f"/api/projects/{project_id}/public-feeds", json={"label": "EU news", "url": "https://environment.ec.europa.eu/news_en"})
+    assert feed["feed"]["kind"] == "rss"
+    calendar = request(client, "post", f"/api/projects/{project_id}/supplier-calendars", json={"supplier_id": "SUP-01", "label": "공급사 휴무", "unavailable_dates": ["2026-10-03"]})
+    assert "2026-10-03" in calendar["supplier_unavailable_dates"]
+    project = request(client, "get", f"/api/projects/{project_id}")
+    assert "2026-10-03" in project["project"]["supplier_unavailable_dates"]

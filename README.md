@@ -53,6 +53,15 @@ Docker를 사용할 경우 `REPLAN_DEMO_TOKEN`을 설정한 뒤 `docker compose 
 
 API 문서는 `http://localhost:8000/docs`에 있습니다. 분석/수집은 큐에 등록되며 별도 worker가 처리합니다. 감시 계획은 처음에 꺼져 있으므로 좌표·출처·간격을 검토하고 직접 활성화해야 합니다. 기상 일정 이벤트는 사용자가 `weather_limits.max_wind_speed_kmh` 또는 `weather_limits.max_precipitation_mm`를 설정한 경우에만 만듭니다. 외부 수집 실패는 스냅샷 오류로 남고 안전 판정으로 취급하지 않습니다.
 
+### P1 운영 입력·연동
+
+- `/api/projects/{project_id}/documents`가 PDF/TXT/MD/EML을 원본과 추출 텍스트로 보존하고, baseline이 있으면 검토용 이벤트를 만듭니다. PDF는 `pypdf`로 텍스트만 추출합니다.
+- `/api/projects/{project_id}/mail-account`는 IMAP/Gmail/Outlook 연결 메타데이터만 저장합니다. 비밀번호·OAuth 토큰은 저장하지 않으며 실제 메일 수집은 별도 인증 작업이 필요합니다.
+- `/api/projects/{project_id}/public-feeds`로 허용 호스트의 RSS/Atom URL을 등록하고 기존 감시계획에 합칠 수 있습니다. 피드 내용은 여전히 검토 사건입니다.
+- 공급사 휴무일은 `/supplier-calendars`로 등록되어 시뮬레이터의 작업 가능일에서 제외됩니다.
+- 알림은 `/notifications`의 인앱 기록으로 동작하고, 이메일·웹훅·Slack 채널은 `DRAFT` 설정으로만 보존합니다. 외부 발송은 P1 범위에서 자동 실행하지 않습니다.
+- `/site-prep`의 `equipment_installation_v1` 템플릿은 허가, 적치장, 양중 장비, 안전 브리핑 체크리스트를 생성합니다. 시나리오 대응 업무의 `due_at`은 옵션의 `decision_lead_days` 또는 기본 3일 기준으로 자동 산출됩니다.
+
 등록 공지는 서버가 허용한 호스트에서만 가져옵니다. 기본 허용 호스트는 `environment.ec.europa.eu`이며, 다른 공식 출처는 서버의 `REPLAN_ALLOWED_SOURCE_HOSTS`에 명시적으로 추가해야 합니다. 페이지 내용은 정책 적용 확정이 아니라 검토 대상입니다.
 
 ## 검증과 선택적 LLM

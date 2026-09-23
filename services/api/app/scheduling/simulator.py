@@ -276,7 +276,8 @@ def _apply_typed_patch(
 
 
 def _project_blocked_dates(project: dict[str, Any]) -> set[date]:
-    return {_parse_date(value) for value in project.get("nonworking_dates") or []}
+    dates = list(project.get("nonworking_dates") or []) + list(project.get("supplier_unavailable_dates") or [])
+    return {_parse_date(value) for value in dates}
 
 
 def _is_fixed(task: dict[str, Any]) -> bool:

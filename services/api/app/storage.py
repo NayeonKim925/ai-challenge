@@ -139,6 +139,27 @@ class Store:
                     created_at TEXT NOT NULL
                 );
                 CREATE UNIQUE INDEX IF NOT EXISTS usage_one_attempt_per_run ON usage_ledger(run_id) WHERE run_id IS NOT NULL;
+                CREATE TABLE IF NOT EXISTS documents (
+                    id TEXT PRIMARY KEY, project_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS mail_accounts (
+                    id TEXT PRIMARY KEY, project_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS public_feeds (
+                    id TEXT PRIMARY KEY, project_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS supplier_calendars (
+                    id TEXT PRIMARY KEY, project_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS notification_channels (
+                    id TEXT PRIMARY KEY, project_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id TEXT PRIMARY KEY, project_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS site_prep_items (
+                    id TEXT PRIMARY KEY, project_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL
+                );
                 """
             )
 
@@ -152,6 +173,13 @@ class Store:
             "events": ("id", "project_id", "fingerprint", "data", "created_at"),
             "scenarios": ("id", "project_id", "run_id", "version_id", "data", "created_at"),
             "actions": ("id", "project_id", "event_id", "scenario_id", "data", "created_at"),
+            "documents": ("id", "project_id", "data", "created_at"),
+            "mail_accounts": ("id", "project_id", "data", "created_at"),
+            "public_feeds": ("id", "project_id", "data", "created_at"),
+            "supplier_calendars": ("id", "project_id", "data", "created_at"),
+            "notification_channels": ("id", "project_id", "data", "created_at"),
+            "notifications": ("id", "project_id", "data", "created_at"),
+            "site_prep_items": ("id", "project_id", "data", "created_at"),
         }
         if table not in allowed:
             raise ValueError("unsupported table")
@@ -170,7 +198,7 @@ class Store:
             )
 
     def get_json(self, table: str, record_id: str, project_id: str | None = None) -> dict[str, Any] | None:
-        if table not in {"projects", "imports", "versions", "watch_plans", "source_snapshots", "events", "runs", "scenarios", "actions"}:
+        if table not in {"projects", "imports", "versions", "watch_plans", "source_snapshots", "events", "runs", "scenarios", "actions", "documents", "mail_accounts", "public_feeds", "supplier_calendars", "notification_channels", "notifications", "site_prep_items"}:
             raise ValueError("unsupported table")
         key = "project_id" if table == "watch_plans" else "id"
         query = f"SELECT * FROM {table} WHERE {key}=?"
@@ -187,7 +215,7 @@ class Store:
         return result
 
     def list_json(self, table: str, project_id: str, limit: int = 100) -> list[dict[str, Any]]:
-        if table not in {"versions", "source_snapshots", "events", "runs", "scenarios", "actions"}:
+        if table not in {"versions", "source_snapshots", "events", "runs", "scenarios", "actions", "documents", "mail_accounts", "public_feeds", "supplier_calendars", "notification_channels", "notifications", "site_prep_items"}:
             raise ValueError("unsupported table")
         order_column = "updated_at" if table == "runs" else "created_at"
         if table == "source_snapshots":

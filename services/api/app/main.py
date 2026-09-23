@@ -6,7 +6,7 @@ import io
 import hashlib
 import json
 import os
-from datetime import date
+from datetime import date, timedelta
 from typing import Any
 from urllib.parse import urlparse
 
@@ -54,6 +54,33 @@ def scenario_or_404(db: Store, scenario_id: str) -> dict[str, Any]:
         raise HTTPException(404, "scenario not found")
     project_or_404(db, scenario["project_id"])
     return scenario
+
+
+def notify_project(db: Store, project_id: str, event_type: str, title: str, message: str, *, data: dict[str, Any] | None = None) -> str:
+    """Create an in-app notification; external delivery remains opt-in and draft-only."""
+    notification_id = identifier()
+    payload = {
+        "notification_id": notification_id, "event_type": event_type, "title": title,
+        "message": message, "channel": "in_app", "status": "UNREAD", "read_at": None,
+        "data": data or {}, "created_at": utcnow(),
+    }
+    db.put_json("notifications", notification_id, payload, project_id=project_id)
+    return notification_id
+
+
+def decision_deadline(project: dict[str, Any], scenario: dict[str, Any], option_ids: list[str], options: list[dict[str, Any]]) -> str | None:
+    """Calculate a review deadline from an option lead time and scenario start."""
+    chosen = [item for item in options if item.get("option_id") in option_ids]
+    lead_days = max([int(item.get("decision_lead_days") or item.get("decision_deadline_days") or 0) for item in chosen] or [0])
+    lead_days = lead_days or int(project.get("decision_lead_days") or 3)
+    starts = [str(item.get("planned_start"))[:10] for item in scenario.get("schedule", []) if item.get("planned_start")]
+    anchor = min(starts) if starts else project.get("target_finish")
+    if not anchor:
+        return None
+    try:
+        return (date.fromisoformat(str(anchor)[:10]) - timedelta(days=lead_days)).isoformat()
+    except ValueError:
+        return None
 
 
 def normalize_import_snapshot(parsed: dict[str, Any], current_project: dict[str, Any], overrides: "ConfirmInput") -> dict[str, Any]:
@@ -175,6 +202,40 @@ class ActionUpdate(BaseModel):
     note: str | None = None
 
 
+class MailAccountInput(BaseModel):
+    provider: str = "imap"
+    host: str
+    username: str
+    folder: str = "INBOX"
+    enabled: bool = True
+
+
+class FeedInput(BaseModel):
+    label: str = Field(min_length=1, max_length=120)
+    url: str
+    kind: str = "rss"
+    enabled: bool = True
+
+
+class SupplierCalendarInput(BaseModel):
+    supplier_id: str = Field(min_length=1, max_length=120)
+    label: str = Field(min_length=1, max_length=120)
+    unavailable_dates: list[date] = Field(default_factory=list)
+    timezone: str = "Asia/Seoul"
+
+
+class NotificationChannelInput(BaseModel):
+    channel: str
+    label: str = "알림 채널"
+    target: str | None = None
+    enabled: bool = True
+
+
+class SitePrepInput(BaseModel):
+    template_id: str = "equipment_installation_v1"
+    owner: str = "프로젝트 담당자"
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -202,6 +263,182 @@ def list_projects() -> dict[str, Any]:
     return {"projects": [{"id": row["id"], **json.loads(row["data"])} for row in rows]}
 
 
+
+
+@app.post("/api/projects/{project_id}/documents", dependencies=[Depends(authorize)])
+async def upload_document(project_id: str, file: UploadFile = File(...)) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    content = await file.read(20 * 1024 * 1024 + 1)
+    if len(content) > 20 * 1024 * 1024:
+        raise HTTPException(413, "document exceeds 20 MiB")
+    try:
+        from .importers import extract_document
+
+        parsed = extract_document(file.filename or "input.txt", content)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    document_id = identifier()
+    db.save_upload(document_id, content)
+    record = {**parsed, "document_id": document_id, "sha256": hashlib.sha256(content).hexdigest(), "size_bytes": len(content)}
+    db.put_json("documents", document_id, record, project_id=project_id)
+    event_result: dict[str, Any] | None = None
+    version = db.current_version(project_id)
+    if version and parsed.get("text", "").strip():
+        project = db.get_json("projects", project_id)
+        raw = {"channel": "email" if parsed["input_type"] == "email" else "document", "source_label": file.filename or "문서 입력", "content": parsed["text"], "mode": project["data"].get("mode", "LIVE"), "data_origin": "USER"}
+        event = normalize_event(raw, project["data"], version["data"]["tasks"])
+        fingerprint = digest({"document_id": document_id, "text": parsed["text"]})
+        event_id = identifier()
+        event["id"] = event_id
+        db.put_json("events", event_id, event, project_id=project_id, fingerprint=fingerprint)
+        notify_project(db, project_id, "document_received", "새 문서 입력", f"{file.filename or '문서'}에서 이벤트를 추출했습니다.", data={"event_id": event_id, "document_id": document_id})
+        event_result = {"event_id": event_id, "event": event}
+    return {"document_id": document_id, "document": record, "event": event_result}
+
+
+@app.get("/api/projects/{project_id}/documents", dependencies=[Depends(authorize)])
+def list_documents(project_id: str) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    return {"documents": db.list_json("documents", project_id)}
+
+
+@app.put("/api/projects/{project_id}/mail-account", dependencies=[Depends(authorize)])
+def connect_mail_account(project_id: str, value: MailAccountInput) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    if value.provider not in {"imap", "gmail", "outlook"}:
+        raise HTTPException(422, "unsupported mail provider")
+    # Store connection metadata only. Passwords/OAuth tokens are deliberately out of scope.
+    account = {**value.model_dump(mode="json"), "status": "CONFIGURED", "credentials_required": True}
+    account_id = f"mail-{project_id}"
+    db.put_json("mail_accounts", account_id, account, project_id=project_id)
+    return {"account_id": account_id, "account": account}
+
+
+@app.get("/api/projects/{project_id}/mail-account", dependencies=[Depends(authorize)])
+def get_mail_account(project_id: str) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    account = db.get_json("mail_accounts", f"mail-{project_id}", project_id)
+    return {"account": account["data"] if account else None}
+
+
+@app.post("/api/projects/{project_id}/public-feeds", dependencies=[Depends(authorize)])
+def register_public_feed(project_id: str, value: FeedInput) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    parsed_url = urlparse(value.url)
+    approved_hosts = {host.strip().lower() for host in os.environ.get("REPLAN_ALLOWED_SOURCE_HOSTS", "environment.ec.europa.eu").split(",") if host.strip()}
+    if parsed_url.scheme != "https" or parsed_url.hostname not in approved_hosts or parsed_url.username or parsed_url.password:
+        raise HTTPException(422, "registered source host is not server-approved")
+    feed_id = identifier()
+    feed = {**value.model_dump(mode="json"), "feed_id": feed_id}
+    db.put_json("public_feeds", feed_id, feed, project_id=project_id)
+    watch = db.get_json("watch_plans", project_id)
+    plan = dict(watch["data"] if watch else suggest_watch_plan(project_or_404(db, project_id)["data"], []))
+    plan["source_allowlist"] = sorted(set(plan.get("source_allowlist", [])) | {value.url})
+    db.put_json("watch_plans", project_id, plan)
+    return {"feed": feed, "watch_plan": plan}
+
+
+@app.get("/api/projects/{project_id}/public-feeds", dependencies=[Depends(authorize)])
+def list_public_feeds(project_id: str) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    return {"feeds": db.list_json("public_feeds", project_id)}
+
+
+@app.post("/api/projects/{project_id}/supplier-calendars", dependencies=[Depends(authorize)])
+def save_supplier_calendar(project_id: str, value: SupplierCalendarInput) -> dict[str, Any]:
+    db = store()
+    project = project_or_404(db, project_id)
+    calendar = value.model_dump(mode="json")
+    calendar_id = f"supplier-{value.supplier_id}"
+    db.put_json("supplier_calendars", calendar_id, calendar, project_id=project_id)
+    profile = dict(project["data"])
+    unavailable = set(profile.get("supplier_unavailable_dates", [])) | set(calendar["unavailable_dates"])
+    profile["supplier_unavailable_dates"] = sorted(unavailable)
+    db.put_json("projects", project_id, profile, created_at=project["created_at"])
+    return {"calendar_id": calendar_id, "calendar": calendar, "supplier_unavailable_dates": profile["supplier_unavailable_dates"]}
+
+
+@app.get("/api/projects/{project_id}/supplier-calendars", dependencies=[Depends(authorize)])
+def list_supplier_calendars(project_id: str) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    return {"calendars": db.list_json("supplier_calendars", project_id)}
+
+
+@app.post("/api/projects/{project_id}/notification-channels", dependencies=[Depends(authorize)])
+def save_notification_channel(project_id: str, value: NotificationChannelInput) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    if value.channel not in {"in_app", "email", "webhook", "slack"}:
+        raise HTTPException(422, "unsupported notification channel")
+    channel = {**value.model_dump(mode="json"), "delivery_mode": "DRAFT" if value.channel != "in_app" else "ACTIVE"}
+    channel_id = f"channel-{value.channel}"
+    db.put_json("notification_channels", channel_id, channel, project_id=project_id)
+    return {"channel_id": channel_id, "channel": channel}
+
+
+@app.get("/api/projects/{project_id}/notifications", dependencies=[Depends(authorize)])
+def list_notifications(project_id: str, unread_only: bool = False) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    notifications = db.list_json("notifications", project_id)
+    if unread_only:
+        notifications = [item for item in notifications if item["data"].get("status") == "UNREAD"]
+    return {"notifications": notifications}
+
+
+@app.patch("/api/notifications/{notification_id}", dependencies=[Depends(authorize)])
+def mark_notification(notification_id: str) -> dict[str, Any]:
+    db = store()
+    record = db.get_json("notifications", notification_id)
+    if not record:
+        raise HTTPException(404, "notification not found")
+    data = {**record["data"], "status": "READ", "read_at": utcnow()}
+    db.put_json("notifications", notification_id, data, project_id=record["project_id"], created_at=record["created_at"])
+    return {"notification": data}
+
+
+@app.get("/api/site-prep/templates", dependencies=[Depends(authorize)])
+def site_prep_templates() -> dict[str, Any]:
+    return {"templates": [{"id": "equipment_installation_v1", "label": "설비 설치 현장 준비", "items": [
+        {"key": "permit", "label": "작업허가·안전서류 확인", "lead_days": 7},
+        {"key": "laydown", "label": "반입 동선·적치장 확보", "lead_days": 5},
+        {"key": "crane", "label": "크레인·양중 장비 예약", "lead_days": 10},
+        {"key": "briefing", "label": "현장 안전 브리핑 일정 확정", "lead_days": 2},
+    ]}]}
+
+
+@app.post("/api/projects/{project_id}/site-prep", dependencies=[Depends(authorize)])
+def instantiate_site_prep(project_id: str, value: SitePrepInput) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    templates = site_prep_templates()["templates"]
+    template = next((item for item in templates if item["id"] == value.template_id), None)
+    if not template:
+        raise HTTPException(404, "site preparation template not found")
+    items = []
+    for item in template["items"]:
+        item_id = identifier()
+        data = {"template_id": value.template_id, "key": item["key"], "label": item["label"], "owner": value.owner, "state": "OPEN", "lead_days": item["lead_days"], "created_at": utcnow()}
+        db.put_json("site_prep_items", item_id, data, project_id=project_id)
+        items.append({"id": item_id, "data": data})
+    notify_project(db, project_id, "site_prep_created", "현장 준비 체크리스트 생성", f"{template['label']} {len(items)}개 항목을 생성했습니다.", data={"template_id": value.template_id})
+    return {"template": template, "items": items}
+
+
+@app.get("/api/projects/{project_id}/decision-deadlines", dependencies=[Depends(authorize)])
+def list_decision_deadlines(project_id: str) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    return {"deadlines": [{"id": item["id"], **item["data"]} for item in db.list_json("actions", project_id) if item["data"].get("due_at")]}
+
+
 @app.get("/api/projects/{project_id}", dependencies=[Depends(authorize)])
 def get_project(project_id: str) -> dict[str, Any]:
     db = store()
@@ -216,6 +453,10 @@ def get_project(project_id: str) -> dict[str, Any]:
         "source_snapshots": db.list_json("source_snapshots", project_id, 10),
         "runs": db.list_json("runs", project_id, 20),
         "actions": db.list_json("actions", project_id),
+        "documents": db.list_json("documents", project_id),
+        "notifications": db.list_json("notifications", project_id),
+        "site_prep_items": db.list_json("site_prep_items", project_id),
+        "supplier_calendars": db.list_json("supplier_calendars", project_id),
         "demo_events": version["data"].get("demo_events", []) if version else [],
     }
 
@@ -373,6 +614,7 @@ def create_event(project_id: str, value: EventInput) -> dict[str, Any]:
     event_id = identifier()
     event["id"] = event_id
     db.put_json("events", event_id, event, project_id=project_id, fingerprint=fingerprint)
+    notify_project(db, project_id, "event_received", "새 변경 이벤트", f"{event.get('source_label', '입력')} 이벤트가 등록되었습니다.", data={"event_id": event_id})
     return {"event_id": event_id, "event": event, "duplicate": False}
 
 
@@ -431,13 +673,16 @@ def prepare_scenario(scenario_id: str) -> dict[str, Any]:
         return {"actions": existing, "duplicate": True}
     actions = []
     event_id = data.get("event_id")
+    project = db.get_json("projects", scenario["project_id"])
+    version = db.get_json("versions", scenario["version_id"], scenario["project_id"])
+    due_at = decision_deadline(project["data"] if project else {}, data, data.get("option_ids", []), (version or {}).get("data", {}).get("options", []))
     for condition in data.get("required_confirmations", []):
-        action = {"owner": "프로젝트 담당자", "state": "OPEN", "request": f"{condition} 확인 및 수락", "condition": condition, "due_at": None, "scenario_id": scenario_id, "event_id": event_id}
+        action = {"owner": "프로젝트 담당자", "state": "OPEN", "request": f"{condition} 확인 및 수락", "condition": condition, "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
         action_id = identifier()
         db.put_json("actions", action_id, action, project_id=scenario["project_id"], event_id=event_id, scenario_id=scenario_id)
         actions.append({"id": action_id, "data": action})
     if not actions:
-        action = {"owner": "프로젝트 담당자", "state": "OPEN", "request": "대응안 검토 및 관계자 협의", "due_at": None, "scenario_id": scenario_id, "event_id": event_id}
+        action = {"owner": "프로젝트 담당자", "state": "OPEN", "request": "대응안 검토 및 관계자 협의", "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
         action_id = identifier()
         db.put_json("actions", action_id, action, project_id=scenario["project_id"], event_id=event_id, scenario_id=scenario_id)
         actions.append({"id": action_id, "data": action})

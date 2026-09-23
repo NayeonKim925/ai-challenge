@@ -1,0 +1,15 @@
+.venv/
+.DS_Store
+node_modules/
+.next/
+__pycache__/
+.pytest_cache/
+.data/
+.omx/
+.lazyweb/
+.env
+.env.*
+!.env.example
+*.pyc
+*.sqlite3
+*.db

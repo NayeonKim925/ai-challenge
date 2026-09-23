@@ -1,0 +1,49 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    environment:
+      REPLAN_DATA_DIR: /data
+      REPLAN_DEMO_TOKEN: ${REPLAN_DEMO_TOKEN:?Set REPLAN_DEMO_TOKEN}
+      REPLAN_CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      REPLAN_ALLOWED_SOURCE_HOSTS: ${REPLAN_ALLOWED_SOURCE_HOSTS:-environment.ec.europa.eu}
+      API_KEY: ${API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      REPLAN_PAID_CALLS_ENABLED: ${REPLAN_PAID_CALLS_ENABLED:-false}
+      REPLAN_MAX_PAID_RUNS_PER_DAY: ${REPLAN_MAX_PAID_RUNS_PER_DAY:-20}
+    volumes:
+      - replan_data:/data
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    command: ["python", "-m", "app.worker"]
+    environment:
+      REPLAN_DATA_DIR: /data
+      API_KEY: ${API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      REPLAN_PAID_CALLS_ENABLED: ${REPLAN_PAID_CALLS_ENABLED:-false}
+      REPLAN_MAX_PAID_RUNS_PER_DAY: ${REPLAN_MAX_PAID_RUNS_PER_DAY:-20}
+    volumes:
+      - replan_data:/data
+    depends_on:
+      - api
+
+  web:
+    build:
+      context: apps/web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  replan_data:

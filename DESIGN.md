@@ -61,7 +61,7 @@
 
 - Existing components to reuse: the current page's upload, preview, event, scenario, approval, and export interactions; preserve their API behavior while restructuring presentation.
 - New/changed components: AppShell with a 개발구매팀 shared-account context, SideNav, TopContext, decision-first Overview, Impact Timeline, evidence drawer, common-axis Scenario Compare, confirmation checklist, decision receipt, and a small `StateIllustration` wrapper with documented placement and accessibility variants.
-- Variants and states: LIVE versus REPLAY, calculated versus inferred versus needs confirmation, no update versus no impact versus failed/stale source, budget/target/approval eligibility.
+- Variants and states: operational versus demo provenance in evidence details, calculated versus inferred versus needs confirmation, no update versus no impact versus failed/stale source, budget/target/approval eligibility. Provenance is not a project-creation choice.
 - Ownership: `apps/web/app/styles.css` owns shared tokens until a component structure justifies extraction. Avoid adding a UI framework solely for visual restyling.
 
 ## Accessibility

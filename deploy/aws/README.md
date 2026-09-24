@@ -103,7 +103,48 @@ sudo systemctl reload nginx
 
 `server_name`을 실제 도메인으로 바꿉니다. 공개 시연 전에는 HTTP 대신 HTTPS를 설정합니다.
 
-## 7. 업데이트와 복구
+## 7. GitHub main 자동 배포
+
+`.github/workflows/ci.yml`은 `main`에 push가 발생하고 backend·web·Compose 검증이 모두 통과하면 EC2를 자동으로 업데이트합니다. PR 브랜치에는 배포하지 않습니다.
+
+### GitHub Actions용 별도 키 만들기
+
+기존 EC2 PEM을 팀원이나 GitHub에 업로드하지 않습니다. 배포 전용 키를 별도로 만듭니다.
+
+로컬에서:
+
+```sh
+ssh-keygen -t ed25519 -C "github-actions-replan" -f ~/.ssh/replan-github-actions
+```
+
+기존 PEM으로 EC2에 한 번 접속해 `~/.ssh/authorized_keys`에 `replan-github-actions.pub`의 공개키를 추가합니다. 개인키 파일인 `replan-github-actions`는 로컬에만 남기고 GitHub Actions Secret에 등록합니다.
+
+### GitHub Repository Secrets
+
+Repository → Settings → Secrets and variables → Actions → New repository secret에 다음 4개를 등록합니다.
+
+| Secret | 값 |
+| --- | --- |
+| `EC2_HOST` | `54.180.131.210` 또는 운영 도메인/IP |
+| `EC2_USER` | 현재 서버 계정인 `ubuntu` |
+| `EC2_SSH_PRIVATE_KEY` | `replan-github-actions` 개인키 전체 내용 |
+| `EC2_KNOWN_HOSTS` | 검증한 EC2 SSH host key 한 줄 이상 |
+
+`EC2_KNOWN_HOSTS`는 최초 접속 후 로컬에서 `ssh-keyscan -H 54.180.131.210`으로 확인할 수 있습니다. 표시된 fingerprint가 EC2의 실제 host key와 일치하는지 확인한 뒤 등록합니다.
+
+설정이 끝나면 다음 흐름으로 배포됩니다.
+
+```text
+feature 브랜치 → Pull Request → CI 검증 → main 병합
+                                      ↓
+                         GitHub Actions가 EC2 SSH 접속
+                                      ↓
+                         git pull + docker compose build
+```
+
+Actions 실행이 실패하면 EC2에는 새 코드가 반영되지 않습니다. EC2의 `.env`와 `replan_data` Docker volume은 GitHub로 전송하지 않고 서버에 그대로 유지합니다.
+
+## 8. 수동 업데이트와 복구
 
 ```sh
 cd ~/ai-innovators-challenge
@@ -115,7 +156,7 @@ docker compose logs --tail=200 api worker web
 
 대회 전에는 `replan_data` volume과 `.env`를 별도 안전한 위치에 백업합니다. `docker compose down -v`는 SQLite와 업로드 파일을 삭제할 수 있으므로 사용하지 않습니다.
 
-팀원끼리 공유할 정보는 AWS 리전, EC2 인스턴스 ID, Public IPv4 또는 도메인, 실행 중인 Git SHA뿐입니다. PEM private key, AWS Access Key, `API_KEY`, `REPLAN_DEMO_TOKEN`은 공유하지 않습니다.
+팀원끼리 공유할 정보는 AWS 리전, EC2 인스턴스 ID, Public IPv4 또는 도메인, 실행 중인 Git SHA뿐입니다. 기존 PEM private key, GitHub Actions 배포 개인키, AWS Access Key, `API_KEY`, `REPLAN_DEMO_TOKEN`은 공유하지 않습니다.
 
 ## 다음 확장
 

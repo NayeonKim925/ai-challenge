@@ -50,10 +50,10 @@
   "risk_classification_usable_count": 12,
   "evidence_retrieval_usable_count": 12,
   "source_tier_distribution": {
-    "2": 5,
-    "3": 10,
-    "4": 2,
-    "1": 2
+    "1": 7,
+    "2": 16,
+    "3": 45,
+    "4": 10
   },
   "total_unique_sources": 78,
   "l3_excluded_full_case_count": 1,

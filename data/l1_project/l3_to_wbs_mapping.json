@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "scope_note": "Maps each of the 12 Grade A/B cases in data/l3_ground_truth/ground_truth.json onto the SYNTHETIC Hero WBS in hero_battery_factory_project.json, for use as affected-task-retrieval benchmark ground truth. direct_task_ids are tasks the L3 case's own affected_project_stage most directly matches; downstream_task_ids are tasks the WBS's own dependency graph gates behind those direct tasks. Grade C case V3-008 (Ford BlueOval City) is excluded here because it is excluded from L3 ground truth entirely (see data/evaluation/excluded_cases.json).",
+  "mapping_count": 12,
+  "mappings": [
+    {
+      "case_id": "V2-001",
+      "risk_category": "labor",
+      "direct_task_ids": [
+        "T046",
+        "T047"
+      ],
+      "downstream_task_ids": [
+        "T048",
+        "T049",
+        "T050",
+        "T051",
+        "T052",
+        "T053",
+        "T054",
+        "T055",
+        "T056",
+        "T057",
+        "T059"
+      ],
+      "mapping_confidence": "medium",
+      "mapping_basis": "L3 case V2-001 describes a labor-enforcement action removing specialized equipment-installation/commissioning workers ('final equipment-installation and commissioning phase' per the source's own affected_project_stage field, itself only OBSERVED at moderate precision). Mapped to the WBS's mechanical/electrical equipment-installation tasks (direct) and the commissioning-through-trial-production chain they gate (downstream)."
+    },
+    {
+      "case_id": "V2-002",
+      "risk_category": "labor / contractor-construction",
+      "direct_task_ids": [
+        "T023"
+      ],
+      "downstream_task_ids": [
+        "T024",
+        "T025",
+        "T026"
+      ],
+      "mapping_confidence": "high",
+      "mapping_basis": "L3 case V2-002's affected_project_stage explicitly names 'concrete pouring and foundation work,' a near-exact textual match to WBS task 4.3 (Foundation & underground utility trenching). Downstream tasks are the immediately-gated next civil-construction steps."
+    },
+    {
+      "case_id": "V2-003",
+      "risk_category": "weather / natural disaster",
+      "direct_task_ids": [],
+      "downstream_task_ids": [
+        "T063"
+      ],
+      "mapping_confidence": "low",
+      "mapping_basis": "L3 case V2-003 describes disruption to an ALREADY-OPERATING fab's ongoing wafer production, not a construction milestone; the Hero WBS is a greenfield-construction project that does not model detailed post-SOP steady-state operations. No WBS task is a genuine match. Task 8.6 (Ramp-up to nameplate capacity) is listed only as the closest available PROXY for 'an operating production stage exposed to a weather shock,' not a confirmed direct mapping -- confidence is intentionally low."
+    },
+    {
+      "case_id": "V2-004",
+      "risk_category": "contractor/construction (financial/capital-allocation driver)",
+      "direct_task_ids": [],
+      "downstream_task_ids": [],
+      "mapping_confidence": "low",
+      "mapping_basis": "L3 case V2-004 itself marks affected_task_retrieval as NOT_USABLE: the case's own ground truth states the 'restart' spans five-plus overlapping, imprecisely-dated milestones with no source agreeing on which one is 'the' affected task. No WBS task is asserted here, per the rule that OBSERVED L3 evidence insufficient to confirm a task must not be forced into a mapping."
+    },
+    {
+      "case_id": "V2-005",
+      "risk_category": "equipment (industrial fire)",
+      "direct_task_ids": [],
+      "downstream_task_ids": [
+        "T063"
+      ],
+      "mapping_confidence": "low",
+      "mapping_basis": "L3 case V2-005 describes a fire disrupting an ALREADY-OPERATING production line (Renesas N3 building), not a construction milestone. As with V2-003, the Hero WBS does not model detailed post-SOP operations, so task 8.6 (Ramp-up) is listed only as the closest available PROXY, with intentionally low confidence."
+    },
+    {
+      "case_id": "V3-001",
+      "risk_category": "labor",
+      "direct_task_ids": [
+        "T046",
+        "T047"
+      ],
+      "downstream_task_ids": [
+        "T048",
+        "T049",
+        "T050",
+        "T051",
+        "T052",
+        "T053",
+        "T054",
+        "T055",
+        "T056",
+        "T057",
+        "T059",
+        "T064"
+      ],
+      "mapping_confidence": "medium",
+      "mapping_basis": "L3 case V3-001 describes a skilled-labor shortage delaying a fab's 'production-start milestone,' OBSERVED only at a coarse level per the source. Mapped to the same equipment-installation-through-SOP chain as V2-001, since both cases describe labor shortages affecting the installation/commissioning stage that gates production start."
+    },
+    {
+      "case_id": "V3-002",
+      "risk_category": "supply chain / logistics",
+      "direct_task_ids": [],
+      "downstream_task_ids": [
+        "T063"
+      ],
+      "mapping_confidence": "low",
+      "mapping_basis": "L3 case V3-002 describes a semiconductor shortage idling ALREADY-OPERATING GM assembly lines for 1-2 weeks, not a construction milestone or even the same industry (automotive assembly, not battery manufacturing). Task 8.6 (Ramp-up) is listed only as the closest analogous 'operating production stage exposed to a supply-chain shock' PROXY, with low confidence."
+    },
+    {
+      "case_id": "V3-003",
+      "risk_category": "supply chain / logistics",
+      "direct_task_ids": [],
+      "downstream_task_ids": [
+        "T063"
+      ],
+      "mapping_confidence": "low",
+      "mapping_basis": "Same reasoning and proxy mapping as V3-002 (Ford Kansas City chip-shortage case; operating automotive assembly line, not a construction milestone)."
+    },
+    {
+      "case_id": "V3-004",
+      "risk_category": "supply chain / logistics",
+      "direct_task_ids": [],
+      "downstream_task_ids": [
+        "T063"
+      ],
+      "mapping_confidence": "low",
+      "mapping_basis": "Same reasoning and proxy mapping as V3-002/V3-003 (Ford Saarlouis, Germany chip-shortage case; operating automotive assembly line, not a construction milestone)."
+    },
+    {
+      "case_id": "V3-005",
+      "risk_category": "regulation/permitting + contractual default",
+      "direct_task_ids": [
+        "T021"
+      ],
+      "downstream_task_ids": [
+        "T022",
+        "T023",
+        "T024"
+      ],
+      "mapping_confidence": "high",
+      "mapping_basis": "L3 case V3-005's affected_project_stage explicitly states the site 'was cleared of trees in 2023' (matching WBS task 4.1, Site preparation & clearing) but 'no further construction occurred after December 2024 -- the project stalled between site clearing and vertical construction.' Downstream tasks are the vertical-construction steps that never resumed in the real case."
+    },
+    {
+      "case_id": "V3-006",
+      "risk_category": "regulation/permitting + labor/occupational-safety",
+      "direct_task_ids": [
+        "T059"
+      ],
+      "downstream_task_ids": [
+        "T061",
+        "T062",
+        "T063",
+        "T064"
+      ],
+      "mapping_confidence": "high",
+      "mapping_basis": "L3 case V3-006's affected_project_stage explicitly names 'cell-production lines specifically,' directly matching WBS task 8.2 (Trial production - cell line); the case describes a delay to trial-production start, which is exactly the milestone task 8.2 represents."
+    },
+    {
+      "case_id": "V3-007",
+      "risk_category": "regulation/policy & funding uncertainty",
+      "direct_task_ids": [
+        "T023",
+        "T024"
+      ],
+      "downstream_task_ids": [
+        "T025",
+        "T026",
+        "T028",
+        "T029",
+        "T032",
+        "T034",
+        "T046",
+        "T047"
+      ],
+      "mapping_confidence": "medium",
+      "mapping_basis": "L3 case V3-007's affected_project_stage explicitly names foundation work and a 'go vertical' milestone -- Intel's own term for the same structural-completion milestone that WBS task 4.4 is named after ('Structural steel erection (go-vertical)'). Direct match on terminology; downstream tasks are the utility and equipment-installation work gated behind the building structure. Confidence is medium rather than high because the real case is a compounding sequence of at least 3 separate delay announcements, not one clean single-event delay, per the L3 source's own notes."
+    }
+  ]
+}

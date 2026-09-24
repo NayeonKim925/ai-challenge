@@ -92,7 +92,6 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
   const [feedForm, setFeedForm] = useState({ label: "환경 정책 RSS", url: "https://environment.ec.europa.eu/news_en", kind: "rss" });
   const [supplierForm, setSupplierForm] = useState({ supplier_id: "", label: "", unavailable_dates: "", timezone: "Asia/Seoul" });
   const [channelForm, setChannelForm] = useState({ channel: "in_app", label: "REPLAN 인앱 알림", target: "" });
-  const [projects, setProjects] = useState<Dict[]>([]);
   const [run, setRun] = useState<RunResult | null>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState("");
   const [manualMessage, setManualMessage] = useState("T03 공급사 FAT 완료가 2026-09-30으로 지연되었습니다. T04 출하는 2026-10-01 이후 가능합니다.");
@@ -168,32 +167,9 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
     }
   }
 
-  async function createProject(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    await guarded("프로젝트 생성", () =>
-      callApi<{ project_id: string; project: Dict }>("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.get("name") || "REPLAN 데모 프로젝트",
-          mode: form.get("mode") || "REPLAY",
-          extra_budget_krw: Number(form.get("budget") || 3000000),
-        }),
-      }),
-    (value) => {
-      setProjectId(value.project_id);
-      setProject({ project: value.project });
-    });
-  }
-
   async function refreshProject(id = projectId) {
     if (!id) return null;
     return guarded("프로젝트 새로고침", () => callApi<ProjectState>(`/api/projects/${id}`), (value) => setProject(value));
-  }
-
-  async function loadProjects() {
-    await guarded("프로젝트 목록 조회", () => callApi<{ projects: Dict[] }>("/api/projects"), (value) => setProjects(value.projects));
   }
 
   async function uploadDocument() {
@@ -537,38 +513,16 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
 
       <section className="workspace">
         <aside className="panel sidebar" id="onboarding">
-          <h2>1. 온보딩</h2>
-          <small className="muted">서버 인증이 연결된 데모 작업공간입니다.</small>
-          <form onSubmit={createProject} className="form-stack">
-            <label>
-              프로젝트명
-              <input name="name" defaultValue="해외 생산설비 도입 및 시운전" />
-            </label>
-            <label>
-              모드
-              <select name="mode" defaultValue="REPLAY">
-                <option>REPLAY</option>
-                <option>LIVE</option>
-              </select>
-            </label>
-            <label>
-              추가 예산
-              <input name="budget" type="number" defaultValue={3000000} />
-            </label>
-            <button disabled={busy}>프로젝트 생성</button>
-          </form>
-          <label>
-            Project ID
-            <input value={projectId} onChange={(event) => setProjectId(event.target.value)} placeholder="기존 프로젝트 ID" />
-          </label>
-          <button className="secondary" onClick={() => refreshProject()} disabled={busy || !projectId}>프로젝트 불러오기</button>
-          <button className="secondary" onClick={loadProjects} disabled={busy}>프로젝트 목록</button>
-          {projects.length > 0 && <select value={projectId} onChange={(event) => { setProjectId(event.target.value); refreshProject(event.target.value); }}><option value="">프로젝트 선택</option>{projects.map((item) => <option key={text(item.id)} value={text(item.id)}>{text(item.name, text(item.id))}</option>)}</select>}
-
-          <div className="divider" />
-          <h2>2. Excel import</h2>
+          <p className="eyebrow">SETUP / 01</p>
+          <h2>기준 일정 연결</h2>
+          <small className="muted">이 프로젝트의 판단 기준이 될 Excel 일정을 먼저 연결하세요.</small>
+          <div className="project-context-card">
+            <span className={`mode ${text((project.project || {}).mode, "LIVE").toLowerCase()}`}>{text((project.project || {}).mode, "LIVE")}</span>
+            <b>{text((project.project || {}).name, "프로젝트")}</b>
+            <small>{shortId(projectId)}</small>
+          </div>
           <input type="file" accept=".xlsx,.csv" onChange={(event: ChangeEvent<HTMLInputElement>) => setSelectedFile(event.target.files?.[0] || null)} />
-          <button onClick={uploadImport} disabled={busy || !selectedFile || !projectId}>업로드·미리보기</button>
+          <button onClick={uploadImport} disabled={busy || !selectedFile || !projectId}>Excel 업로드·미리보기</button>
           {preview && (
             <div className="preview">
               <b>{preview.import_kind === "change" ? "수정 Excel" : "Baseline Excel"}</b>
@@ -578,7 +532,8 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
             </div>
           )}
           <div className="divider" />
-          <h2>P1 문서 입력</h2>
+          <p className="eyebrow">EVIDENCE / 02</p>
+          <h2>보조 근거 연결</h2>
           <input type="file" accept=".pdf,.txt,.md,.eml" onChange={(event: ChangeEvent<HTMLInputElement>) => setDocumentFile(event.target.files?.[0] || null)} />
           <button onClick={uploadDocument} disabled={busy || !documentFile || !projectId}>PDF·메일 텍스트 입력</button>
           <small className="muted">업로드 후 worker가 파싱하고, 완료되면 검토 이벤트를 생성합니다.</small>

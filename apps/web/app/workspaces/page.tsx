@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,9 +33,6 @@ export default function WorkspacesPage() {
   const router = useRouter();
   const apiBase = "/api/proxy";
   const [projects, setProjects] = useState<Dict[]>([]);
-  const [name, setName] = useState("해외 생산설비 도입 및 시운전");
-  const [mode, setMode] = useState("REPLAY");
-  const [budget, setBudget] = useState("3000000");
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
 
@@ -63,23 +60,6 @@ export default function WorkspacesPage() {
     void loadProjects();
   }, []);
 
-  async function createProject(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setBusy(true);
-    try {
-      const value = await api<{ project_id: string }>("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, mode, extra_budget_krw: Number(budget || 0) }),
-      });
-      sessionStorage.setItem("replan.projectId", value.project_id);
-      router.push(`/projects/${value.project_id}`);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "프로젝트를 생성하지 못했습니다.");
-      setBusy(false);
-    }
-  }
-
   function openProject(project: Dict) {
     const id = text(project.id);
     sessionStorage.setItem("replan.projectId", id);
@@ -101,7 +81,7 @@ export default function WorkspacesPage() {
         </div>
         <div className="workspace-head-actions">
           <button className="secondary" onClick={loadProjects} disabled={busy}>새로고침</button>
-          <a className="workspace-primary-action" href="#new-project">프로젝트 만들기 <span aria-hidden="true">↗</span></a>
+          <Link className="workspace-primary-action" href="/workspaces/new">프로젝트 만들기 <span aria-hidden="true">→</span></Link>
         </div>
       </section>
 
@@ -120,14 +100,13 @@ export default function WorkspacesPage() {
           <div className="workspace-table" role="table" aria-label="프로젝트 포트폴리오">
             <div className="workspace-table-head" role="row"><span>프로젝트</span><span>상태</span><span>목표일</span><span>일정</span><span>예산</span></div>
             {busy && <div className="workspace-empty" role="row"><div className="workspace-empty-mark">R</div><b>프로젝트 목록을 불러오는 중입니다.</b><span>연결 상태를 확인하고 있습니다.</span></div>}
-            {!busy && !projects.length && <div className="workspace-empty" role="row"><div className="workspace-empty-mark">R</div><b>아직 프로젝트가 없습니다.</b><span>첫 프로젝트를 만들고 기준 데이터를 연결해보세요.</span><a href="#new-project">첫 프로젝트 만들기 <span aria-hidden="true">↗</span></a></div>}
+            {!busy && !projects.length && <div className="workspace-empty" role="row"><div className="workspace-empty-mark">R</div><b>아직 프로젝트가 없습니다.</b><span>첫 프로젝트를 만들고 기준 데이터를 연결해보세요.</span><Link href="/workspaces/new">첫 프로젝트 만들기 <span aria-hidden="true">→</span></Link></div>}
             {!busy && projects.map((project) => <button className="workspace-table-row" role="row" key={text(project.id)} onClick={() => openProject(project)}><span className="workspace-project-name"><b>{text(project.name, "이름 없는 프로젝트")}</b><small>{text(project.id)}</small></span><span><i className={`workspace-status-dot ${text(project.mode, "LIVE").toLowerCase()}`} />{text(project.mode, "LIVE")}</span><span>{text(project.target_finish, "미설정")}</span><span className="workspace-impact-neutral">정상</span><span>{Number(project.extra_budget_krw || 0).toLocaleString("ko-KR")}원</span></button>)}
           </div>
         </div>
 
         <aside className="workspace-side-rail">
-          <div className="workspace-decision-queue"><div className="workspace-panel-header"><div><p className="eyebrow">NEXT DECISIONS</p><h2>결정 큐</h2></div><span className="workspace-queue-count">{projects.length ? "0" : "3"}</span></div><div className="decision-list">{decisions.map((decision) => <div className="decision-item" key={decision.title}><span className={`decision-label ${decision.tone}`}>{decision.label}</span><b>{decision.title}</b><p>{decision.detail}</p></div>)}</div></div>
-          <form className="create-card workspace-create-panel" id="new-project" onSubmit={createProject}><p className="eyebrow">NEW PROJECT</p><h2>새 프로젝트</h2><p>기준 Excel을 올릴 작업공간을 만듭니다.</p><label>프로젝트명<input value={name} onChange={(event) => setName(event.target.value)} /></label><label>모드<select value={mode} onChange={(event) => setMode(event.target.value)}><option>REPLAY</option><option>LIVE</option></select></label><label>추가 예산<input type="number" value={budget} onChange={(event) => setBudget(event.target.value)} /></label><button type="submit" disabled={busy}>프로젝트 생성 <span aria-hidden="true">→</span></button></form>
+          <div className="workspace-decision-queue"><div className="workspace-panel-header"><div><p className="eyebrow">NEXT DECISIONS</p><h2>결정 큐</h2></div><span className="workspace-queue-count">{projects.length ? "0" : "3"}</span></div>{projects.length ? <div className="decision-empty"><span aria-hidden="true">✓</span><b>대기 중인 결정이 없습니다.</b><p>프로젝트에서 새 변경이 감지되면 여기에 표시됩니다.</p></div> : <div className="decision-list">{decisions.map((decision) => <div className="decision-item" key={decision.title}><span className={`decision-label ${decision.tone}`}>{decision.label}</span><b>{decision.title}</b><p>{decision.detail}</p></div>)}</div>}</div>
         </aside>
       </section>
     </main>

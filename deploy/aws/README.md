@@ -105,44 +105,36 @@ sudo systemctl reload nginx
 
 ## 7. GitHub main 자동 배포
 
-`.github/workflows/ci.yml`은 `main`에 push가 발생하고 backend·web·Compose 검증이 모두 통과하면 EC2를 자동으로 업데이트합니다. PR 브랜치에는 배포하지 않습니다.
+`.github/workflows/ci.yml`은 `main`에 push가 발생하고 backend·web·Compose 검증이 모두 통과하면 EC2의 Self-hosted Runner에서 배포 명령을 실행합니다. PR 브랜치에는 배포하지 않습니다.
 
-### GitHub Actions용 별도 키 만들기
+### Self-hosted Runner
 
-기존 EC2 PEM을 팀원이나 GitHub에 업로드하지 않습니다. 배포 전용 키를 별도로 만듭니다.
+EC2에 `replan-ec2` label의 GitHub Runner를 서비스로 설치합니다. Runner는 EC2 내부에서 `git pull`과 Docker Compose를 실행하므로 GitHub Actions용 SSH 개인키를 저장하거나 SSH 22번 포트를 외부에 공개할 필요가 없습니다.
 
-로컬에서:
+GitHub Repository → Settings → Actions → Runners에서 Linux x64 Runner를 추가하고, 다음 label을 지정합니다.
 
-```sh
-ssh-keygen -t ed25519 -C "github-actions-replan" -f ~/.ssh/replan-github-actions
+```text
+replan-ec2
 ```
 
-기존 PEM으로 EC2에 한 번 접속해 `~/.ssh/authorized_keys`에 `replan-github-actions.pub`의 공개키를 추가합니다. 개인키 파일인 `replan-github-actions`는 로컬에만 남기고 GitHub Actions Secret에 등록합니다.
+Runner 서비스 확인:
 
-### GitHub Repository Secrets
-
-Repository → Settings → Secrets and variables → Actions → New repository secret에 다음 4개를 등록합니다.
-
-| Secret | 값 |
-| --- | --- |
-| `EC2_HOST` | `54.180.131.210` 또는 운영 도메인/IP |
-| `EC2_USER` | 현재 서버 계정인 `ubuntu` |
-| `EC2_SSH_PRIVATE_KEY` | `replan-github-actions` 개인키 전체 내용 |
-| `EC2_KNOWN_HOSTS` | 검증한 EC2 SSH host key 한 줄 이상 |
-
-`EC2_KNOWN_HOSTS`는 최초 접속 후 로컬에서 `ssh-keyscan -H 54.180.131.210`으로 확인할 수 있습니다. 표시된 fingerprint가 EC2의 실제 host key와 일치하는지 확인한 뒤 등록합니다.
+```sh
+cd ~/actions-runner
+sudo ./svc.sh status
+```
 
 설정이 끝나면 다음 흐름으로 배포됩니다.
 
 ```text
 feature 브랜치 → Pull Request → CI 검증 → main 병합
                                       ↓
-                         GitHub Actions가 EC2 SSH 접속
+                     EC2 Self-hosted Runner가 작업 수신
                                       ↓
                          git pull + docker compose build
 ```
 
-Actions 실행이 실패하면 EC2에는 새 코드가 반영되지 않습니다. EC2의 `.env`와 `replan_data` Docker volume은 GitHub로 전송하지 않고 서버에 그대로 유지합니다.
+EC2의 `.env`와 `replan_data` Docker volume은 GitHub로 전송하지 않고 서버에 그대로 유지합니다. 기존 `EC2_HOST`, `EC2_USER`, `EC2_SSH_PRIVATE_KEY`, `EC2_KNOWN_HOSTS` Secrets는 Self-hosted Runner 전환이 확인된 뒤 삭제해도 됩니다.
 
 ## 8. 수동 업데이트와 복구
 

@@ -7,6 +7,8 @@ from hashlib import sha256
 import json
 from typing import Any, Optional, Union
 
+from ..events import infer_event_patch
+
 
 DateLike = Union[date, str]
 
@@ -78,6 +80,7 @@ def simulate(
             "extra_cost_krw": 0,
             "target_met": False,
             "budget_met": budget_krw is None or budget_krw >= 0,
+            "budget_status": "UNSET" if budget_krw is None else "SET",
             "conditional": [],
             "violations": validation_errors,
             "scenario_hash": _stable_hash({"errors": validation_errors}),
@@ -92,7 +95,7 @@ def simulate(
     scoped_blocked_dates: list[dict[str, Any]] = []
     resource_unavailable: list[dict[str, Any]] = []
 
-    _apply_event(task_map, event, resource_unavailable, blocked_dates, scoped_blocked_dates)
+    _apply_event(project, task_map, event, resource_unavailable, blocked_dates, scoped_blocked_dates)
 
     for option in options or []:
         option_id = str(option.get("option_id") or "").strip()
@@ -139,7 +142,7 @@ def simulate(
     finish = max(_parse_date(item["planned_finish"]) for item in schedule)
     target_finish = project.get("target_finish")
     target_met = True if target_finish is None else finish <= _parse_date(target_finish)
-    resolved_budget = budget_krw if budget_krw is not None else project.get("extra_budget_krw")
+    resolved_budget = budget_krw
     budget_met = True if resolved_budget is None else extra_cost_krw <= int(resolved_budget)
 
     scenario = {
@@ -157,6 +160,8 @@ def simulate(
         "extra_cost_krw": extra_cost_krw,
         "target_met": target_met,
         "budget_met": budget_met,
+        "budget_status": "UNSET" if resolved_budget is None else "WITHIN_LIMIT" if budget_met else "OVER_LIMIT",
+        "budget_limit_krw": resolved_budget,
         "conditional": conditional,
         "violations": violations,
         "scenario_hash": _stable_hash(scenario),
@@ -220,6 +225,7 @@ def _schedule_task(
 
 
 def _apply_event(
+    project: dict[str, Any],
     task_map: dict[str, dict[str, Any]],
     event: Optional[dict[str, Any]],
     resource_unavailable: list[dict[str, Any]],
@@ -229,13 +235,12 @@ def _apply_event(
     if not event:
         return
 
-    if event.get("event_id") == "E01" or "9월 30일" in str(event.get("content") or ""):
-        if "T03" in task_map:
-            task_map["T03"]["fixed_finish"] = "2026-09-30"
-        if "T04" in task_map:
-            task_map["T04"]["not_before"] = "2026-10-01"
+    patch = event.get("patch") or {}
+    if not patch and event.get("content"):
+        inferred = infer_event_patch(event, project, list(task_map.values()))
+        patch = inferred.get("patch") or {}
 
-    _apply_typed_patch(task_map, event.get("patch") or {}, scoped_blocked_dates, resource_unavailable)
+    _apply_typed_patch(task_map, patch, scoped_blocked_dates, resource_unavailable)
 
     for patch_item in event.get("patches") or []:
         task_id = str(patch_item.get("task_id") or "")

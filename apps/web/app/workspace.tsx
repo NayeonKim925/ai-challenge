@@ -58,6 +58,10 @@ function money(value: unknown) {
   return `${amount.toLocaleString("ko-KR")}원`;
 }
 
+function costLabel(data: Dict) {
+  return data.budget_status === "UNSET" ? "비용 미정" : money(data.extra_cost_krw);
+}
+
 function shortId(value: unknown, fallback = "-") {
   const raw = text(value, fallback);
   return raw.length > 12 ? `${raw.slice(0, 12)}...` : raw;
@@ -71,6 +75,7 @@ function taskDates(task: Dict) {
 }
 
 function scenarioScore(data: Dict) {
+  if (data.budget_status === "UNSET") return data.target_met ? "조건부" : "목표일 미달";
   if (data.target_met && data.budget_met && Array.isArray(data.violations) && data.violations.length === 0) {
     if (Array.isArray(data.required_confirmations) && data.required_confirmations.length > 0) return "조건부";
     return "실행 후보";
@@ -78,10 +83,6 @@ function scenarioScore(data: Dict) {
   if (!data.target_met && data.budget_met) return "목표일 미달";
   if (data.target_met && !data.budget_met) return "예산 초과";
   return "제약 확인";
-}
-
-function projectType(value: unknown) {
-  return text(value, "LIVE") === "REPLAY" ? "데모" : "운영";
 }
 
 export default function Home({ initialProjectId = "" }: { initialProjectId?: string }) {
@@ -99,8 +100,8 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
   const [projects, setProjects] = useState<Dict[]>([]);
   const [run, setRun] = useState<RunResult | null>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState("");
-  const [manualMessage, setManualMessage] = useState("T03 공급사 FAT 완료가 2026-09-30으로 지연되었습니다. T04 출하는 2026-10-01 이후 가능합니다.");
-  const [budget, setBudget] = useState(6000000);
+  const [manualMessage, setManualMessage] = useState("설비 제작 완료가 9월 25일에서 9월 30일로 변경됩니다. FAT는 10월 1일부터 가능하며 후속 출하 일정을 재협의해야 합니다.");
+  const [budget, setBudget] = useState<number | "">("");
   const [notice, setNotice] = useState("프로젝트를 생성하거나 불러오세요.");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -140,11 +141,12 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
     const response = await fetch(`${apiBase}${path}`, { ...init, headers });
     if (!response.ok) {
       let message = response.statusText;
+      const rawBody = await response.text();
       try {
-        const body = await response.json();
+        const body = JSON.parse(rawBody) as Dict;
         message = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail || body);
       } catch {
-        message = await response.text();
+        message = rawBody || response.statusText;
       }
       throw { status: response.status, message } satisfies ApiError;
     }
@@ -170,24 +172,6 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
     } finally {
       setBusy(false);
     }
-  }
-
-  async function createProject(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    await guarded("프로젝트 생성", () =>
-      callApi<{ project_id: string; project: Dict }>("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.get("name") || "REPLAN 데모 프로젝트",
-          mode: "REPLAY",
-        }),
-      }),
-    (value) => {
-      setProjectId(value.project_id);
-      setProject({ project: value.project });
-    });
   }
 
   async function refreshProject(id = projectId) {
@@ -349,7 +333,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
       return;
     }
     await createEvent({
-      event_id: text(first.event_id, "E01"),
+      event_id: text(first.event_id, "demo-change"),
       content: text(first.body || first.content),
       mode: "REPLAY",
       data_origin: "SYNTHETIC",
@@ -370,6 +354,16 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
     });
   }
 
+  async function reviewEvent(eventId: string) {
+    await guarded("변경 해석 확인", () =>
+      callApi<Dict>(`/api/projects/${projectId}/events/${eventId}/review`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmed: true }),
+      }),
+    async () => refreshProject(projectId));
+  }
+
   async function createManualEvent() {
     await createEvent({
       content: manualMessage,
@@ -387,19 +381,24 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
       setError({ status: 0, message: "분석할 이벤트가 없습니다." });
       return;
     }
-    await guarded("영향 분석 job 생성", () =>
+    const latestData = (project.events?.[0]?.data || project.events?.[0] || {}) as Dict;
+    if (latestData.patch && latestData.review_status !== "CONFIRMED") {
+      setError({ status: 409, message: "변경 해석을 먼저 확인해주세요." });
+      return;
+    }
+    await guarded("영향 분석 시작", () =>
       callApi<{ run_id: string; status: string }>(`/api/projects/${projectId}/analyses`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ event_id: eventId }),
       }),
-    (value) => setNotice(`분석 job ${value.status}: ${value.run_id}. worker 실행 후 Run 조회를 누르세요.`));
+    (value) => setNotice(`영향 분석 ${value.status}: ${value.run_id}. 처리 후 결과를 확인하세요.`));
   }
 
   async function fetchRun(runId?: string) {
     const id = runId || text(project.runs?.[0]?.id, "");
     if (!id) return;
-    await guarded("Run 조회", () => callApi<RunResult>(`/api/runs/${id}`), (value) => {
+    await guarded("분석 결과 조회", () => callApi<RunResult>(`/api/runs/${id}`), (value) => {
       setRun(value);
       const firstScenario = value.scenarios?.[0]?.id;
       if (firstScenario) setSelectedScenarioId(firstScenario);
@@ -408,14 +407,14 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
 
   async function replan() {
     const runId = text(run?.run?.id || project.runs?.[0]?.id, "");
-    if (!runId) return;
-    await guarded("예산 변경 재계산", () =>
+    if (!runId || budget === "") return;
+    await guarded("비용 한도 반영", () =>
       callApi<{ run_id: string; status: string }>(`/api/runs/${runId}/replan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ budget_krw: budget, unavailable_option_ids: [] }),
       }),
-    (value) => setNotice(`재계산 job ${value.status}: ${value.run_id}. worker 실행 후 Run 조회하세요.`));
+    (value) => setNotice(`대응안 비교 ${value.status}: ${value.run_id}. 처리 후 결과를 확인하세요.`));
   }
 
   async function prepareScenario() {
@@ -428,15 +427,15 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
   async function acceptScenarioActions() {
     const actions = (project.actions || []).filter((item) => item.scenario_id === selectedScenarioId || item.data?.scenario_id === selectedScenarioId);
     if (!actions.length) {
-      setError({ status: 0, message: "먼저 prepare로 업무를 생성하세요." });
+      setError({ status: 0, message: "먼저 확인 요청을 만들어주세요." });
       return;
     }
-    await guarded("조건 업무 수락", async () => {
+    await guarded("조건 확인", async () => {
       for (const action of actions) {
         await callApi<Dict>(`/api/actions/${action.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ state: "ACCEPTED", note: "UI demo confirmation" }),
+          body: JSON.stringify({ state: "ACCEPTED", note: "프로젝트 운영팀 확인" }),
         });
       }
       return { ok: true };
@@ -451,7 +450,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
       callApi<Dict>(`/api/scenarios/${scenario.id}/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ actor: "개발구매팀", decision: "APPROVED", confirmed_conditions: required }),
+        body: JSON.stringify({ actor: "프로젝트 운영팀", decision: "APPROVED", confirmed_conditions: required }),
       }));
   }
 
@@ -508,7 +507,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
         </a>
         <div className="brand-context">
           <span className="brand-context-dot" aria-hidden="true" />
-          <span>개발구매팀</span>
+          <span>프로젝트 운영팀</span>
           <span className="brand-divider" aria-hidden="true" />
           <span>공용 계정</span>
         </div>
@@ -517,7 +516,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
       <section className="hero human-hero" id="overview">
         <div className="hero-copy">
           <p className="eyebrow">PROJECT OVERVIEW</p>
-          <div className="project-title-row"><h1>{projectName}</h1><span className={`mode ${text((project.project || {}).mode, "LIVE").toLowerCase()}`}>{projectType((project.project || {}).mode)}</span></div>
+          <div className="project-title-row"><h1>{projectName}</h1></div>
           <p className="subtitle">{notice}</p>
           <div className="hero-context"><span className="context-marker" aria-hidden="true" /><span>프로젝트 ID {shortId(projectId, "미지정")}</span><span className="context-slash">/</span><span>{eventCount ? `변경 ${eventCount}건` : "변경 없음"}</span></div>
         </div>
@@ -571,16 +570,12 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
         <aside className="panel sidebar context-rail" id="onboarding">
           <div className="rail-heading"><div><p className="eyebrow">CONTEXT RAIL</p><h2>프로젝트 맥락</h2></div><span className="rail-index">01</span></div>
           <p className="rail-intro">기준 Excel과 프로젝트 운영 입력을 관리합니다.</p>
-          <small className="muted">개발구매팀 공용 계정이 기준 일정과 프로젝트 결정을 관리합니다.</small>
-          <form onSubmit={createProject} className="form-stack">
-            <label>
-              프로젝트명
-              <input name="name" defaultValue="해외 생산설비 도입 및 시운전" />
-            </label>
-            <small className="muted">협력사는 별도 계정 없이 변경 출처·작업 책임자·확인 대상으로 기록합니다.</small>
-            <small className="muted">대응 예산은 변경이 발생한 뒤 대응안 비교 단계에서 입력합니다.</small>
-            <button disabled={busy}>프로젝트 생성</button>
-          </form>
+          <small className="muted">프로젝트 운영팀 공용 계정이 기준 일정과 프로젝트 결정을 관리합니다.</small>
+          <div className="preview workspace-create-note">
+            <b>새 프로젝트</b>
+            <small>프로젝트 이름을 정한 뒤 기준 Excel을 연결합니다.</small>
+            <a href="/workspaces/new">프로젝트 만들기 <span aria-hidden="true">↗</span></a>
+          </div>
           <label>
             Project ID
             <input value={projectId} onChange={(event) => setProjectId(event.target.value)} placeholder="기존 프로젝트 ID" />
@@ -654,10 +649,21 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
                   const data = event.data || event;
                   return (
                     <article key={text(event.id || data.id)} className="event-card">
-                      <span className={`mode ${text(data.mode, "LIVE").toLowerCase()}`}>{projectType(data.mode)}</span>
-                      <b>{text(data.event_id || data.id)}</b>
+                      <b>{text(data.title, "변경 메시지")}</b>
                       <p>{text(data.content || data.title)}</p>
-                      <small>{text(data.source_label)} · {text(data.classification_status)}</small>
+                      <small>{text(data.source_label)} · {data.review_status === "CONFIRMED" ? "변경 해석 확인됨" : "변경 해석 확인 필요"}</small>
+                      {Array.isArray(data.extracted_facts) && data.extracted_facts.length > 0 && (
+                        <ul className="event-facts">
+                          {(data.extracted_facts as Dict[]).slice(0, 3).map((fact, index) => (
+                            <li key={`${text(fact.kind, "fact")}-${index}`}>
+                              <span>{text(fact.kind, "변경")}</span> {text(fact.value)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {Boolean(data.patch) && data.review_status !== "CONFIRMED" && (
+                        <button className="text-button event-review-button" onClick={() => reviewEvent(text(event.id || data.id, ""))} disabled={busy}>변경 해석 확인</button>
+                      )}
                     </article>
                   );
                 })}
@@ -753,19 +759,19 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
           </section>
 
           <div className="button-row">
-            <button onClick={createEventFromDemo} disabled={!project.demo_events?.length || busy}>데모 변경 E01 불러오기</button>
-            <button className="secondary" onClick={analyzeLatestEvent} disabled={!project.events?.length || busy}>분석 job</button>
+            <button onClick={createEventFromDemo} disabled={!project.demo_events?.length || busy}>변경 메시지 불러오기</button>
+            <button className="secondary" onClick={analyzeLatestEvent} disabled={!project.events?.length || busy}>영향 분석 시작</button>
           </div>
           <textarea value={manualMessage} onChange={(event) => setManualMessage(event.target.value)} rows={4} />
-          <button className="secondary" onClick={createManualEvent} disabled={!project.version || busy}>수동 메시지 등록</button>
+          <button className="secondary" onClick={createManualEvent} disabled={!project.version || busy}>변경 메시지 등록</button>
 
           <div className="button-row">
-            <button onClick={() => fetchRun()} disabled={!project.runs?.length || busy}>최근 Run 조회</button>
+            <button onClick={() => fetchRun()} disabled={!project.runs?.length || busy}>분석 결과 보기</button>
             <label className="replan-budget-field">
-              대응 예산 한도 (원)
-              <input className="budget" type="number" min="0" step="100000" value={budget} onChange={(event) => setBudget(Number(event.target.value))} />
+              대응안 비교용 비용 한도 (선택)
+              <input className="budget" type="number" min="0" step="100000" value={budget} onChange={(event) => setBudget(event.target.value === "" ? "" : Number(event.target.value))} />
             </label>
-            <button className="secondary" onClick={replan} disabled={!run?.run || busy}>예산 재계산</button>
+            <button className="secondary" onClick={replan} disabled={!run?.run || budget === "" || busy}>비용 한도 반영</button>
           </div>
 
           <ScenarioList scenarios={run?.scenarios || []} selected={selectedScenarioId} onSelect={setSelectedScenarioId} />
@@ -773,13 +779,13 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
           {selectedScenario && (
             <div className="approval-card">
               <b>{text(selectedScenario.data?.label)} · {scenarioScore(selectedScenario.data || {})}</b>
-              <small>finish {text(selectedScenario.data?.finish_date)} · cost {money(selectedScenario.data?.extra_cost_krw)}</small>
-              <small>required {((selectedScenario.data?.required_confirmations as unknown[]) || []).length} · source {text(selectedScenario.data?.mode)} / {text(selectedScenario.data?.data_origin)}</small>
+              <small>완료 예정 {text(selectedScenario.data?.finish_date)} · 추가 비용 {costLabel(selectedScenario.data || {})}</small>
+              <small>확인이 필요한 조건 {((selectedScenario.data?.required_confirmations as unknown[]) || []).length}건</small>
               <div className="button-row wrap">
-                <button onClick={prepareScenario} disabled={busy}>prepare</button>
-                <button className="secondary" onClick={acceptScenarioActions} disabled={busy}>조건 수락</button>
+                <button onClick={prepareScenario} disabled={busy}>확인 요청 만들기</button>
+                <button className="secondary" onClick={acceptScenarioActions} disabled={busy}>회신 조건 확인</button>
                 <button className="secondary" onClick={approveScenario} disabled={busy}>승인</button>
-                <button onClick={commitScenario} disabled={busy}>commit</button>
+                <button onClick={commitScenario} disabled={busy}>일정 확정</button>
               </div>
             </div>
           )}
@@ -812,7 +818,7 @@ function ScenarioList({ scenarios, selected, onSelect }: { scenarios: Array<Dict
           <button key={text(scenario.id)} className={selected === scenario.id ? "scenario active" : "scenario"} onClick={() => onSelect(text(scenario.id))}>
             <span>{text(data.label)}</span>
             <b>{text(data.finish_date)}</b>
-            <small>{scenarioScore(data)} · {money(data.extra_cost_krw)}</small>
+            <small>{scenarioScore(data)} · {costLabel(data)}</small>
           </button>
         );
       })}

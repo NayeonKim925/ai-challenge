@@ -19,8 +19,6 @@ function friendlyError(value: string) {
 export default function NewWorkspacePage() {
   const router = useRouter();
   const [name, setName] = useState("해외 생산설비 도입 및 시운전");
-  const [mode, setMode] = useState("REPLAY");
-  const [budget, setBudget] = useState("3000000");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,7 +35,7 @@ export default function NewWorkspacePage() {
       const response = await fetch("/api/proxy/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), mode, extra_budget_krw: Number(budget || 0) }),
+        body: JSON.stringify({ name: name.trim(), mode: "LIVE" }),
       });
       if (!response.ok) throw new Error(await response.text());
       const value = await response.json() as { project_id: string };
@@ -64,10 +62,10 @@ export default function NewWorkspacePage() {
       <div className="project-create-layout">
         <section className="project-create-intro" aria-labelledby="project-create-title">
           <p className="eyebrow"><span className="flow-indicator" aria-hidden="true" /> NEW PROJECT / 01</p>
-          <h1 id="project-create-title">결정을 시작할<br />작업공간을 만듭니다.</h1>
+          <h1 id="project-create-title">새 프로젝트</h1>
           <p>프로젝트의 최소 정보만 먼저 입력하세요. 생성 후 기준 Excel을 연결하면 일정·비용·자원 영향을 같은 맥락에서 비교할 수 있습니다.</p>
           <ol className="project-create-steps" aria-label="프로젝트 설정 단계">
-            <li className="active"><span>01</span><div><b>프로젝트 정보</b><small>이름, 운영 방식, 예산 범위</small></div></li>
+            <li className="active"><span>01</span><div><b>프로젝트 정보</b><small>이름과 기준 일정</small></div></li>
             <li><span>02</span><div><b>기준 일정 연결</b><small>Excel 업로드 및 구조 확인</small></div></li>
             <li><span>03</span><div><b>변경 영향 분석</b><small>대안 비교와 승인 준비</small></div></li>
           </ol>
@@ -86,25 +84,7 @@ export default function NewWorkspacePage() {
             <small>팀이 목록과 결정 기록에서 구분할 수 있는 이름을 사용하세요.</small>
           </label>
 
-          <fieldset className="project-mode-field">
-            <legend>운영 방식</legend>
-            <div className="project-mode-options">
-              <label className={mode === "REPLAY" ? "selected" : ""}>
-                <input type="radio" name="mode" value="REPLAY" checked={mode === "REPLAY"} onChange={() => setMode("REPLAY")} />
-                <span><b>REPLAY</b><small>제공된 사례로 전체 흐름을 빠르게 확인합니다.</small></span>
-              </label>
-              <label className={mode === "LIVE" ? "selected" : ""}>
-                <input type="radio" name="mode" value="LIVE" checked={mode === "LIVE"} onChange={() => setMode("LIVE")} />
-                <span><b>LIVE</b><small>실제 프로젝트 데이터를 연결해 운영합니다.</small></span>
-              </label>
-            </div>
-          </fieldset>
-
-          <label className="project-create-field">
-            <span>추가 대응 예산</span>
-            <div className="project-budget-input"><input type="number" min="0" step="100000" value={budget} onChange={(event) => setBudget(event.target.value)} /><b>원</b></div>
-            <small>변경 대응안을 비교할 때 사용할 초기 예산 상한입니다.</small>
-          </label>
+          <div className="project-create-guidance"><b>다음 단계에서 기준 일정 연결</b><small>대응 비용은 변경이 발생하고 대응안을 비교할 때 입력합니다.</small></div>
 
           {error && <div className="project-create-error" role="alert">{error}</div>}
 

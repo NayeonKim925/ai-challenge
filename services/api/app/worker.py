@@ -9,6 +9,7 @@ import os
 import time
 import json
 from datetime import datetime, timezone
+from itertools import combinations
 from typing import Any
 from urllib.parse import urlparse
 
@@ -53,6 +54,39 @@ def _record_usage(db: Store, run_id: str, output: dict[str, Any]) -> None:
         )
 
 
+def _can_combine(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    """Respect explicit option compatibility metadata; default to combinable."""
+    left_id = str(left.get("option_id") or "")
+    right_id = str(right.get("option_id") or "")
+    left_exclusive = {str(item) for item in left.get("mutually_exclusive_with") or []}
+    right_exclusive = {str(item) for item in right.get("mutually_exclusive_with") or []}
+    if right_id in left_exclusive or left_id in right_exclusive:
+        return False
+    left_group = left.get("exclusive_group")
+    right_group = right.get("exclusive_group")
+    return not left_group or not right_group or left_group != right_group
+
+
+def _candidate_options(options: list[dict[str, Any]], unavailable: set[str]) -> list[tuple[str, list[str]]]:
+    """Build response combinations from declared compatibility, not demo IDs."""
+    usable = [
+        option for option in options
+        if option.get("option_id")
+        and str(option.get("option_id")) not in unavailable
+        and str(option.get("operation") or "").upper() != "REQUEST_TARGET_CHANGE"
+    ]
+    candidates: list[tuple[str, list[str]]] = [("무대응", [])]
+    for option in usable:
+        option_id = str(option["option_id"])
+        candidates.append((str(option.get("name") or option_id), [option_id]))
+    for size in range(2, min(3, len(usable)) + 1):
+        for group in combinations(usable, size):
+            if all(_can_combine(left, right) for left, right in combinations(group, 2)):
+                option_ids = [str(option["option_id"]) for option in group]
+                candidates.append((" + ".join(str(option.get("name") or option["option_id"]) for option in group), option_ids))
+    return candidates[:8]
+
+
 def _reserve_paid_attempt(db: Store, run_id: str) -> str:
     """Reserve before network I/O so crash recovery cannot silently double-charge."""
     limit = max(0, int(os.environ.get("REPLAN_MAX_PAID_RUNS_PER_DAY", "20")))
@@ -90,36 +124,26 @@ def _run_analysis(db: Store, run: dict[str, Any]) -> dict[str, Any]:
     tasks = snapshot["tasks"]
     options = snapshot.get("options", [])
     budget = run["data"].get("budget_krw")
-    if budget is None:
-        budget = project.get("extra_budget_krw", 0)
     if event.get("classification_status") == "NO_SCHEDULE_IMPACT":
         return {"status": "NO_IMPACT", "summary": "일정에 영향을 주는 변경이 아닙니다.", "scenario_ids": [], "agent_status": "not_needed"}
     if not event.get("patch"):
         action_id = digest({"run_id": run["id"], "kind": "needs_input"})[:32]
         missing = event.get("missing_fields") or ["적용 대상", "일정 영향"]
         action = {
-            "owner": "개발구매팀", "state": "OPEN", "request": ", ".join(missing) + " 확인",
+            "owner": "프로젝트 운영팀", "state": "OPEN", "request": ", ".join(missing) + " 확인",
             "due_at": None, "event_id": event["id"], "mode": event.get("mode"),
         }
         db.put_json("actions", action_id, action, project_id=run["project_id"], event_id=event["id"], scenario_id=None)
         return {"status": "NEEDS_INPUT", "summary": "적용 여부나 기간이 확인되지 않아 일정은 변경하지 않았습니다.", "action_ids": [action_id], "scenario_ids": [], "agent_status": "not_needed"}
 
     unavailable = set(run["data"].get("unavailable_option_ids") or [])
-    candidates: list[tuple[str, list[str]]] = [("무대응", [])]
-    for option in options:
-        option_id = option.get("option_id")
-        if not option_id or option_id in unavailable or option.get("operation") == "REQUEST_TARGET_CHANGE":
-            continue
-        candidates.append((str(option.get("name") or option_id), [option_id]))
-    if "OPT-02" not in unavailable and "OPT-03" not in unavailable and {"OPT-02", "OPT-03"}.issubset({item.get("option_id") for item in options}):
-        candidates.append(("추가팀 + 조기 운송", ["OPT-02", "OPT-03"]))
-    candidates = candidates[:8]
+    candidates = _candidate_options(options, unavailable)
 
     scenario_ids = []
     scenario_results = []
     for label, selected in candidates:
         chosen = [item for item in options if item.get("option_id") in selected]
-        result = simulate(project, tasks, event=event, options=chosen, budget_krw=int(budget))
+        result = simulate(project, tasks, event=event, options=chosen, budget_krw=budget)
         record = _scenario_record(run, event, version, label, selected, result)
         scenario_id = digest({"run_id": run["id"], "option_ids": selected})[:32]
         db.put_json("scenarios", scenario_id, record, project_id=run["project_id"], run_id=run["id"], version_id=version["id"])
@@ -146,7 +170,7 @@ def _run_analysis(db: Store, run: dict[str, Any]) -> dict[str, Any]:
                 if not selected.issubset({item.get("option_id") for item in options}):
                     return {"status": "invalid_input", "error": "unknown option"}
                 chosen = [item for item in options if item.get("option_id") in selected]
-                return simulate(project, tasks, event=event, options=chosen, budget_krw=int(budget))
+                return simulate(project, tasks, event=event, options=chosen, budget_krw=budget)
 
             source_calls = {"search": 0, "fetch": 0, "weather": 0}
             snapshots = db.list_json("source_snapshots", run["project_id"], limit=30)
@@ -199,7 +223,12 @@ def _run_analysis(db: Store, run: dict[str, Any]) -> dict[str, Any]:
             agent_output = {"status": "error", "error": type(exc).__name__, "summary": "LLM 분석에 실패해 계산 결과만 제공합니다."}
 
     meeting = [item for item in scenario_results if item.get("target_met") and item.get("budget_met") and not item.get("violations")]
-    summary = "현재 등록된 선택지와 예산으로 목표일 충족안을 찾지 못했습니다." if not meeting else "등록된 선택지에서 목표일과 예산을 만족하는 계산안을 찾았습니다. 실행 조건을 확인하세요."
+    if not meeting:
+        summary = "현재 등록된 선택지 범위에서는 목표일을 만족하는 안을 찾지 못했습니다."
+    elif budget is None:
+        summary = "목표일을 만족하는 계산안을 찾았습니다. 비용은 아직 미정이므로 대응안 비교에서 확인하세요."
+    else:
+        summary = "등록된 선택지에서 목표일과 비용 한도를 만족하는 계산안을 찾았습니다. 실행 조건을 확인하세요."
     return {"status": "succeeded", "summary": summary, "scenario_ids": scenario_ids, "agent_status": agent_output.get("status"), "agent": agent_output, "budget_krw": budget}
 
 

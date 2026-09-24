@@ -52,9 +52,9 @@ export default function LandingPage() {
 
         <div className="landing-hero-copy">
           <p className="landing-kicker"><span aria-hidden="true" /> 프로젝트 변경 관리</p>
-          <h1 id="landing-title">계획이 바뀌는 순간,<br />다음 수를 계산합니다.</h1>
+          <h1 id="landing-title">REPLAN</h1>
           <p>
-            REPLAN은 현장의 변경 근거를 모으고, 일정과 비용 영향을 비교해<br className="desktop-break" />
+            계획이 바뀌는 순간, 현장의 변경 근거를 모으고 일정과 비용 영향을 비교해<br className="desktop-break" />
             실행 가능한 대응안까지 연결합니다.
           </p>
           <div className="landing-hero-actions">

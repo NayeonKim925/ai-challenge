@@ -5,7 +5,7 @@
 | 영역 | 현재 개발·검증 | 운영 전 필요 | 담당 단위 |
 | --- | --- | --- | --- |
 | 웹 프론트 | Next.js `apps/web`, `/api/proxy` 서버 프록시 | HTTPS 도메인, 런타임 환경변수, 브라우저 보안 헤더 | 화면/배포 |
-| 백엔드 API | FastAPI `services/api`, 프로젝트·import·분석·승인·export | 사용자별 인증, 조직/프로젝트 권한, rate limit | API/인증 |
+| 백엔드 API | FastAPI `services/api`, 프로젝트·import·분석·승인·export | 개발구매팀 공용 계정 인증, 프로젝트 소유권, rate limit. MVP에는 개인별 역할·외부 업체 계정 없음 | API/인증 |
 | 데이터베이스 | SQLite 파일 `.data` 또는 Compose `replan_data` 볼륨 | PostgreSQL 또는 관리형 Supabase, 백업·마이그레이션·복구 | 데이터/배포 |
 | 비동기 처리 | 별도 Python worker와 SQLite 잠금 | 영속 worker 프로세스, 작업 큐/재시도, 스케줄러, 관찰성 | worker/운영 |
 | 파일 저장 | 로컬 `uploads/` | S3 호환 비공개 버킷, 만료 URL, 보존·삭제 정책 | import/export |

@@ -99,13 +99,14 @@ def test_e01_budget_replan_approval_commit_and_export(client):
     prepared = request(client, "post", f"/api/scenarios/{scenario_id}/prepare")
     assert len(prepared["actions"]) == 1
     assert prepared["actions"][0]["data"]["due_at"] == "2026-09-11"
+    assert prepared["actions"][0]["data"]["owner"] == "개발구매팀"
     pending = client.post(
         f"/api/scenarios/{scenario_id}/approve", headers={"Authorization": "Bearer test-token"},
-        json={"actor": "demo-admin", "confirmed_conditions": option["data"]["required_confirmations"]},
+        json={"actor": "개발구매팀", "confirmed_conditions": option["data"]["required_confirmations"]},
     )
     assert pending.status_code == 409
     request(client, "patch", f"/api/actions/{prepared['actions'][0]['id']}", json={"state": "ACCEPTED"})
-    request(client, "post", f"/api/scenarios/{scenario_id}/approve", json={"actor": "demo-admin", "confirmed_conditions": option["data"]["required_confirmations"]})
+    request(client, "post", f"/api/scenarios/{scenario_id}/approve", json={"actor": "개발구매팀", "confirmed_conditions": option["data"]["required_confirmations"]})
     request(client, "patch", f"/api/actions/{prepared['actions'][0]['id']}", json={"state": "REJECTED"})
     revoked = client.post(f"/api/scenarios/{scenario_id}/commit", headers={"Authorization": "Bearer test-token"})
     assert revoked.status_code == 409
@@ -162,7 +163,7 @@ def test_duplicate_event_and_stale_scenario(client):
         actions = request(client, "post", f"/api/scenarios/{item['id']}/prepare")["actions"]
         for action in actions:
             request(client, "patch", f"/api/actions/{action['id']}", json={"state": "ACCEPTED"})
-        request(client, "post", f"/api/scenarios/{item['id']}/approve", json={"actor": "demo-admin", "confirmed_conditions": item["data"]["required_confirmations"]})
+        request(client, "post", f"/api/scenarios/{item['id']}/approve", json={"actor": "개발구매팀", "confirmed_conditions": item["data"]["required_confirmations"]})
     request(client, "post", f"/api/scenarios/{first['id']}/commit")
     conflict = client.post(f"/api/scenarios/{second['id']}/commit", headers={"Authorization": "Bearer test-token"})
     assert conflict.status_code == 409

@@ -58,8 +58,8 @@ function money(value: unknown) {
   return `${amount.toLocaleString("ko-KR")}원`;
 }
 
-function shortId(value: unknown) {
-  const raw = text(value);
+function shortId(value: unknown, fallback = "-") {
+  const raw = text(value, fallback);
   return raw.length > 12 ? `${raw.slice(0, 12)}...` : raw;
 }
 
@@ -78,6 +78,10 @@ function scenarioScore(data: Dict) {
   if (!data.target_met && data.budget_met) return "목표일 미달";
   if (data.target_met && !data.budget_met) return "예산 초과";
   return "제약 확인";
+}
+
+function projectType(value: unknown) {
+  return text(value, "LIVE") === "REPLAY" ? "데모" : "운영";
 }
 
 export default function Home({ initialProjectId = "" }: { initialProjectId?: string }) {
@@ -177,8 +181,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.get("name") || "REPLAN 데모 프로젝트",
-          mode: form.get("mode") || "REPLAY",
-          extra_budget_krw: Number(form.get("budget") || 3000000),
+          mode: "REPLAY",
         }),
       }),
     (value) => {
@@ -331,12 +334,12 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
   }
 
   async function runScan() {
-    await guarded("LIVE 소스 조회", () =>
+    await guarded("등록 소스 조회", () =>
       callApi<{ run_id: string; status: string }>(`/api/projects/${projectId}/scan`, {
         method: "POST",
         headers: { "Idempotency-Key": `scan-${Date.now()}` },
       }),
-    (value) => setNotice(`LIVE scan ${value.status}: ${value.run_id}. worker 실행 후 새로고침하세요.`));
+    (value) => setNotice(`등록 소스 조회 ${value.status}: ${value.run_id}. worker 실행 후 새로고침하세요.`));
   }
 
   async function createEventFromDemo() {
@@ -448,7 +451,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
       callApi<Dict>(`/api/scenarios/${scenario.id}/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ actor: "demo-admin", decision: "APPROVED", confirmed_conditions: required }),
+        body: JSON.stringify({ actor: "개발구매팀", decision: "APPROVED", confirmed_conditions: required }),
       }));
   }
 
@@ -494,32 +497,61 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
   const openActions = project.actions?.filter((item) => String(item.data?.state || "OPEN") === "OPEN").length || 0;
   const eventCount = project.events?.length || 0;
   const runCount = project.runs?.length || 0;
+  const currentStep = !project.version ? 1 : !eventCount ? 2 : !runCount ? 3 : !selectedScenarioId ? 4 : openActions ? 5 : 6;
+  const projectName = text((project.project || {}).name, "프로젝트 없음");
 
   return (
-    <main>
-      <header className="brand-bar" aria-label="REPLAN workspace">
+    <main className="human-workspace">
+      <header className="brand-bar human-nav" aria-label="REPLAN workspace">
         <a className="brand-lockup" href="/" aria-label="REPLAN 홈">
           <Image src="/brand/replan-wordmark.png" alt="REPLAN" width={1500} height={350} priority />
         </a>
         <div className="brand-context">
           <span className="brand-context-dot" aria-hidden="true" />
-          <span>운영 콘솔</span>
+          <span>개발구매팀</span>
           <span className="brand-divider" aria-hidden="true" />
-          <span>Schedule intelligence</span>
+          <span>공용 계정</span>
         </div>
+        <div className="human-nav-meta"><span className="nav-live-dot" /> <span>TEAM WORKSPACE</span><span className="nav-meta-divider" /> <span>{shortId(projectId, "NEW")}</span></div>
       </header>
-      <section className="hero" id="overview">
-        <div>
-          <p className="eyebrow">PROJECT CONTROL / 01</p>
-          <h1>엑셀 일정이 바뀌는 순간, 대응안까지 한 화면에서 닫습니다.</h1>
-          <p className="subtitle">변경의 근거와 일정 영향을 확인하고, 실행 가능한 대응안을 승인합니다.</p>
+      <section className="hero human-hero" id="overview">
+        <div className="hero-copy">
+          <p className="eyebrow">PROJECT OVERVIEW</p>
+          <div className="project-title-row"><h1>{projectName}</h1><span className={`mode ${text((project.project || {}).mode, "LIVE").toLowerCase()}`}>{projectType((project.project || {}).mode)}</span></div>
+          <p className="subtitle">{notice}</p>
+          <div className="hero-context"><span className="context-marker" aria-hidden="true" /><span>프로젝트 ID {shortId(projectId, "미지정")}</span><span className="context-slash">/</span><span>{eventCount ? `변경 ${eventCount}건` : "변경 없음"}</span></div>
         </div>
-        <div className="status-card">
-          <span className={`mode ${text((project.project || {}).mode, "LIVE").toLowerCase()}`}>{text((project.project || {}).mode, "LIVE")}</span>
-          <strong>{text((project.project || {}).name, "프로젝트 없음")}</strong>
+        <div className="status-card human-status-card">
+          <span className="status-kicker">WORKSPACE STATUS</span>
+          <strong>{error ? "연결 확인 필요" : project.version ? "기준 일정 연결됨" : "기준 일정 대기"}</strong>
           <small>{notice}</small>
+          <a href={currentStep < 3 ? "#onboarding" : currentStep < 5 ? "#changes" : "#scenarios"} className="hero-action">{currentStep < 3 ? "기준 일정 연결" : currentStep < 5 ? "변경 영향 확인" : "승인 큐 열기"}<span aria-hidden="true">↗</span></a>
+          <div className="hero-scene" aria-hidden="true">
+            <Image
+              className="workspace-illustration workspace-status-illustration"
+              src="/images/workspace/workspace-status-flat.png"
+              alt=""
+              fill
+              sizes="330px"
+              priority
+            />
+          </div>
         </div>
       </section>
+
+      <nav className="workspace-stepper" aria-label="프로젝트 진행 단계">
+        {[
+          ["01", "Brief", "프로젝트 맥락"],
+          ["02", "Import", "기준 일정"],
+          ["03", "Detect", "변경 감지"],
+          ["04", "Compare", "대응안 비교"],
+          ["05", "Approve", "조건 승인"],
+          ["06", "Execute", "실행 연결"],
+        ].map(([number, label, description], index) => {
+          const step = index + 1;
+          return <a className={`step-item ${step === currentStep ? "current" : ""} ${step < currentStep ? "complete" : ""}`} href={step <= 2 ? "#onboarding" : step <= 4 ? "#changes" : "#scenarios"} key={number}><span className="step-number">{step < currentStep ? "✓" : number}</span><span><b>{label}</b><small>{description}</small></span></a>;
+        })}
+      </nav>
 
       {error && (
         <aside className="error">
@@ -528,33 +560,25 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
         </aside>
       )}
 
-      <section className="workspace-summary" aria-label="프로젝트 요약">
-        <article className="summary-card summary-card-primary"><span>DECISION QUEUE</span><strong>{eventCount ? `${eventCount}건 검토 필요` : "기준 일정 연결 필요"}</strong><small>{eventCount ? "새 변경과 영향 분석을 확인하세요." : "Excel을 올리면 프로젝트 맥락이 시작됩니다."}</small></article>
+      <section className="workspace-summary human-summary" aria-label="프로젝트 요약">
+        <article className="summary-card summary-card-primary"><span>DECISION QUEUE</span><strong>{eventCount ? `${eventCount}건 검토 필요` : "검토 항목 없음"}</strong><small>{eventCount ? "변경 이벤트와 영향 분석을 확인하세요." : "기준 Excel을 업로드하세요."}</small></article>
         <article className="summary-card"><span>최근 변경</span><strong>{eventCount || "—"}</strong><small>{eventCount ? "저장된 이벤트" : "아직 변경 없음"}</small></article>
         <article className="summary-card"><span>승인 대기</span><strong>{unreadNotifications || "—"}</strong><small>{unreadNotifications ? "확인하지 않은 알림" : "결정 큐가 비어 있습니다"}</small></article>
         <article className="summary-card"><span>실행 항목</span><strong>{openActions || "—"}</strong><small>{openActions ? "열린 업무" : `${runCount || 0}개 분석 실행`}</small></article>
       </section>
 
-      <section className="workspace">
-        <aside className="panel sidebar" id="onboarding">
-          <h2>1. 온보딩</h2>
-          <small className="muted">서버 인증이 연결된 데모 작업공간입니다.</small>
+      <section className="workspace human-grid">
+        <aside className="panel sidebar context-rail" id="onboarding">
+          <div className="rail-heading"><div><p className="eyebrow">CONTEXT RAIL</p><h2>프로젝트 맥락</h2></div><span className="rail-index">01</span></div>
+          <p className="rail-intro">기준 Excel과 프로젝트 운영 입력을 관리합니다.</p>
+          <small className="muted">개발구매팀 공용 계정이 기준 일정과 프로젝트 결정을 관리합니다.</small>
           <form onSubmit={createProject} className="form-stack">
             <label>
               프로젝트명
               <input name="name" defaultValue="해외 생산설비 도입 및 시운전" />
             </label>
-            <label>
-              모드
-              <select name="mode" defaultValue="REPLAY">
-                <option>REPLAY</option>
-                <option>LIVE</option>
-              </select>
-            </label>
-            <label>
-              추가 예산
-              <input name="budget" type="number" defaultValue={3000000} />
-            </label>
+            <small className="muted">협력사는 별도 계정 없이 변경 출처·작업 책임자·확인 대상으로 기록합니다.</small>
+            <small className="muted">대응 예산은 변경이 발생한 뒤 대응안 비교 단계에서 입력합니다.</small>
             <button disabled={busy}>프로젝트 생성</button>
           </form>
           <label>
@@ -592,7 +616,20 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
           )}
         </aside>
 
-        <section className="panel main-panel" id="schedule">
+        <section className="panel main-panel decision-canvas" id="schedule">
+          <div className="canvas-intro"><div><p className="eyebrow">SCHEDULE / 02</p><h2>일정 변경</h2><p>기준 일정과 변경 이벤트를 확인합니다.</p></div><span className="canvas-state"><i />{eventCount ? "CHANGE DETECTED" : "BASELINE READY"}</span></div>
+          <div className="workspace-scene-panel" aria-hidden="true">
+            <div className="scene-panel-copy"><span className="scene-kicker">CURRENT STATE</span><strong>{eventCount ? "변경 이벤트가 있습니다" : "기준 일정이 없습니다"}</strong><span>{eventCount ? "이벤트 타임라인에서 영향 범위를 확인하세요." : "작업·선후행·자원 조건이 포함된 Excel을 업로드하세요."}</span></div>
+            <div className="scene-panel-art">
+              <Image
+                className="workspace-illustration workspace-schedule-illustration"
+                src="/images/workspace/workspace-schedule-flat.png"
+                alt=""
+                fill
+                sizes="(max-width: 860px) 45vw, 360px"
+              />
+            </div>
+          </div>
           <div className="section-head">
             <div id="changes">
               <p className="eyebrow">PROJECT PULSE</p>
@@ -604,7 +641,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
           {!tasks.length ? (
             <div className="workspace-empty-state">
               <div className="workspace-empty-index">01</div>
-              <div><p className="eyebrow">BASELINE REQUIRED</p><h3>결정 전에 기준 일정을 연결하세요.</h3><p>Excel을 업로드하면 작업·선후행·자원 조건을 확인하고, 이후 변경의 영향과 대응안을 같은 기준으로 비교할 수 있습니다.</p><a href="#onboarding">왼쪽에서 Excel 업로드 시작 <span aria-hidden="true">↗</span></a></div>
+              <div><p className="eyebrow">BASELINE REQUIRED</p><h3>기준 일정이 없습니다.</h3><p>작업·선후행·자원 조건이 포함된 Excel을 업로드하면 일정 변경을 비교할 수 있습니다.</p><a href="#onboarding">Excel 업로드 <span aria-hidden="true">↗</span></a></div>
             </div>
           ) : <Gantt tasks={tasks} scenarioSchedule={scenarioSchedule} />}
 
@@ -616,7 +653,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
                   const data = event.data || event;
                   return (
                     <article key={text(event.id || data.id)} className="event-card">
-                      <span className={`mode ${text(data.mode, "LIVE").toLowerCase()}`}>{text(data.mode, "LIVE")}</span>
+                      <span className={`mode ${text(data.mode, "LIVE").toLowerCase()}`}>{projectType(data.mode)}</span>
                       <b>{text(data.event_id || data.id)}</b>
                       <p>{text(data.content || data.title)}</p>
                       <small>{text(data.source_label)} · {text(data.classification_status)}</small>
@@ -640,12 +677,13 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
           </div>
         </section>
 
-        <aside className="panel decision">
-          <h2>3. 감시·분석·승인</h2>
+        <aside className="panel decision notes-rail">
+          <div className="rail-heading"><div><p className="eyebrow">NOTES & QUEUE</p><h2>감시·분석·승인</h2></div><span className="rail-index">03</span></div>
+          <p className="rail-intro">알림, 실행 항목, 연결 상태를 관리합니다.</p>
           <div className="decision-lead">
             <p className="eyebrow">NEXT DECISION</p>
-            <h3>{eventCount ? "새 변경의 영향을 확인하세요." : "첫 결정을 위한 근거를 준비하세요."}</h3>
-            <p>{eventCount ? "이벤트 타임라인에서 근거를 확인하고 분석 Run을 실행합니다." : "감시 계획과 기준 Excel을 먼저 연결하면 다음 행동이 선명해집니다."}</p>
+            <h3>{eventCount ? "변경 영향 확인 필요" : "기준 일정 연결 필요"}</h3>
+            <p>{eventCount ? "이벤트 타임라인에서 근거를 확인하고 분석 Run을 실행합니다." : "기준 Excel을 연결하면 변경 감지와 시나리오 분석을 사용할 수 있습니다."}</p>
             <span>{eventCount ? `${eventCount}건의 변경 기록` : "아직 기준 버전 없음"}</span>
           </div>
           <div className="watch-card">
@@ -654,7 +692,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
             <small>{text((project.watch_plan?.weather_site as Dict | undefined)?.label, "weather 미설정")} · sources {((project.watch_plan?.source_allowlist as unknown[]) || []).length}</small>
             <div className="button-row">
               <button onClick={() => saveWatchPlan(true)} disabled={!projectId || busy}>활성화</button>
-              <button className="secondary" onClick={runScan} disabled={!projectId || busy}>LIVE scan</button>
+              <button className="secondary" onClick={runScan} disabled={!projectId || busy}>등록 소스 조회</button>
             </div>
             {(project.source_snapshots || []).slice(0, 3).map((source) => (
               <small key={text(source.id)}>
@@ -714,7 +752,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
           </section>
 
           <div className="button-row">
-            <button onClick={createEventFromDemo} disabled={!project.demo_events?.length || busy}>REPLAY E01</button>
+            <button onClick={createEventFromDemo} disabled={!project.demo_events?.length || busy}>데모 변경 E01 불러오기</button>
             <button className="secondary" onClick={analyzeLatestEvent} disabled={!project.events?.length || busy}>분석 job</button>
           </div>
           <textarea value={manualMessage} onChange={(event) => setManualMessage(event.target.value)} rows={4} />
@@ -722,7 +760,10 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
 
           <div className="button-row">
             <button onClick={() => fetchRun()} disabled={!project.runs?.length || busy}>최근 Run 조회</button>
-            <input className="budget" type="number" value={budget} onChange={(event) => setBudget(Number(event.target.value))} />
+            <label className="replan-budget-field">
+              대응 예산 한도 (원)
+              <input className="budget" type="number" min="0" step="100000" value={budget} onChange={(event) => setBudget(Number(event.target.value))} />
+            </label>
             <button className="secondary" onClick={replan} disabled={!run?.run || busy}>예산 재계산</button>
           </div>
 

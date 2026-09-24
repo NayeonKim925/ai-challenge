@@ -170,7 +170,7 @@ class WatchPlanInput(BaseModel):
 class EventInput(BaseModel):
     event_id: str | None = None
     channel: str = "supplier_message"
-    source_label: str = "사용자 입력"
+    source_label: str = "개발구매팀 입력"
     content: str = Field(min_length=1, max_length=10000)
     published_at: str | None = None
     received_at: str | None = None
@@ -233,7 +233,7 @@ class NotificationChannelInput(BaseModel):
 
 class SitePrepInput(BaseModel):
     template_id: str = "equipment_installation_v1"
-    owner: str = "프로젝트 담당자"
+    owner: str = "개발구매팀"
 
 
 @app.get("/health")
@@ -750,12 +750,12 @@ def prepare_scenario(scenario_id: str) -> dict[str, Any]:
     version = db.get_json("versions", scenario["version_id"], scenario["project_id"])
     due_at = decision_deadline(project["data"] if project else {}, data, data.get("option_ids", []), (version or {}).get("data", {}).get("options", []))
     for condition in data.get("required_confirmations", []):
-        action = {"owner": "프로젝트 담당자", "state": "OPEN", "request": f"{condition} 확인 및 수락", "condition": condition, "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
+        action = {"owner": "개발구매팀", "state": "OPEN", "request": f"{condition} 확인 및 수락", "condition": condition, "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
         action_id = identifier()
         db.put_json("actions", action_id, action, project_id=scenario["project_id"], event_id=event_id, scenario_id=scenario_id)
         actions.append({"id": action_id, "data": action})
     if not actions:
-        action = {"owner": "프로젝트 담당자", "state": "OPEN", "request": "대응안 검토 및 관계자 협의", "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
+        action = {"owner": "개발구매팀", "state": "OPEN", "request": "대응안 검토 및 관계자 협의", "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
         action_id = identifier()
         db.put_json("actions", action_id, action, project_id=scenario["project_id"], event_id=event_id, scenario_id=scenario_id)
         actions.append({"id": action_id, "data": action})

@@ -98,7 +98,7 @@ def _run_analysis(db: Store, run: dict[str, Any]) -> dict[str, Any]:
         action_id = digest({"run_id": run["id"], "kind": "needs_input"})[:32]
         missing = event.get("missing_fields") or ["적용 대상", "일정 영향"]
         action = {
-            "owner": "프로젝트 담당자", "state": "OPEN", "request": ", ".join(missing) + " 확인",
+            "owner": "개발구매팀", "state": "OPEN", "request": ", ".join(missing) + " 확인",
             "due_at": None, "event_id": event["id"], "mode": event.get("mode"),
         }
         db.put_json("actions", action_id, action, project_id=run["project_id"], event_id=event["id"], scenario_id=None)

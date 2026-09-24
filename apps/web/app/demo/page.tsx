@@ -19,10 +19,14 @@ export default function DemoEntryPage() {
         <Link className="brand-lockup" href="/" aria-label="REPLAN 홈">
           <Image src="/brand/replan-wordmark.png" alt="REPLAN" width={1500} height={350} priority />
         </Link>
-        <Link className="text-link" href="/">홈으로</Link>
+        <nav className="product-flow" aria-label="제품 이용 흐름">
+          <Link href="/" aria-current="false">01 소개</Link><span aria-hidden="true">/</span>
+          <span className="is-current" aria-current="step">02 데모</span><span aria-hidden="true">/</span>
+          <Link href="/workspaces">03 워크스페이스</Link>
+        </nav>
       </header>
       <section className="entry-card">
-        <p className="eyebrow">DEMO ACCESS</p>
+        <p className="eyebrow"><span className="flow-indicator" aria-hidden="true" /> DEMO ACCESS · 02 / 03</p>
         <h1>REPLAN 데모에 진입합니다.</h1>
         <p>서버에서 데모 환경을 준비하고 핵심 일정 재계획 흐름으로 바로 연결합니다.</p>
         <div className="entry-form">

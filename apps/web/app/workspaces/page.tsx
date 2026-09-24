@@ -90,12 +90,12 @@ export default function WorkspacesPage() {
     <main className="directory-page workspace-directory">
       <header className="directory-nav">
         <Link className="brand-lockup" href="/" aria-label="REPLAN 홈"><Image src="/brand/replan-wordmark.png" alt="REPLAN" width={1500} height={350} priority /></Link>
-        <div className="directory-nav-actions"><span className="demo-badge">DEMO WORKSPACE</span><Link className="text-link" href="/">홈으로</Link></div>
+        <div className="directory-nav-actions"><span className="demo-badge"><span className="flow-indicator" aria-hidden="true" /> DEMO WORKSPACE</span><nav className="product-flow" aria-label="제품 이용 흐름"><Link href="/">01 소개</Link><span aria-hidden="true">/</span><Link href="/demo">02 데모</Link><span aria-hidden="true">/</span><span className="is-current" aria-current="page">03 워크스페이스</span></nav></div>
       </header>
 
       <section className="directory-head workspace-head">
         <div>
-          <p className="eyebrow">WORKSPACE / CONTROL ROOM</p>
+          <p className="eyebrow"><span className="flow-indicator" aria-hidden="true" /> WORKSPACE / CONTROL ROOM · 03</p>
           <h1>결정이 필요한 프로젝트를 한눈에.</h1>
           <p>변경·영향·대응·승인을 한 곳에서 연결하고, 다음 액션을 놓치지 않게 관리합니다.</p>
         </div>

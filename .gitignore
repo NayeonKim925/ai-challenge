@@ -1,6 +1,7 @@
 .venv/
 .DS_Store
 node_modules/
+.npm-cache/
 .next/
 __pycache__/
 .pytest_cache/

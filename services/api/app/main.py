@@ -145,7 +145,7 @@ class ProjectInput(BaseModel):
     region: str | None = None
     timezone: str = "Asia/Seoul"
     target_finish: date | None = None
-    extra_budget_krw: int = Field(default=0, ge=0)
+    extra_budget_krw: int | None = Field(default=None, ge=0)
     mode: str = "LIVE"
     data_origin: str = "USER"
 
@@ -170,7 +170,7 @@ class WatchPlanInput(BaseModel):
 class EventInput(BaseModel):
     event_id: str | None = None
     channel: str = "supplier_message"
-    source_label: str = "개발구매팀 입력"
+    source_label: str = "프로젝트 운영팀 입력"
     content: str = Field(min_length=1, max_length=10000)
     published_at: str | None = None
     received_at: str | None = None
@@ -178,6 +178,12 @@ class EventInput(BaseModel):
     data_origin: str | None = None
     simulation_as_of: str | None = None
     patch: dict[str, Any] = Field(default_factory=dict)
+
+
+class EventReviewInput(BaseModel):
+    confirmed: bool = True
+    patch: dict[str, Any] | None = None
+    related_task_ids: list[str] | None = None
 
 
 class AnalysisInput(BaseModel):
@@ -233,7 +239,7 @@ class NotificationChannelInput(BaseModel):
 
 class SitePrepInput(BaseModel):
     template_id: str = "equipment_installation_v1"
-    owner: str = "개발구매팀"
+    owner: str = "프로젝트 운영팀"
 
 
 @app.get("/health")
@@ -679,6 +685,36 @@ def create_event(project_id: str, value: EventInput) -> dict[str, Any]:
     return {"event_id": event_id, "event": event, "duplicate": False}
 
 
+@app.patch("/api/projects/{project_id}/events/{event_id}/review", dependencies=[Depends(authorize)])
+def review_event(project_id: str, event_id: str, value: EventReviewInput) -> dict[str, Any]:
+    db = store()
+    project_or_404(db, project_id)
+    record = db.get_json("events", event_id, project_id)
+    if not record:
+        raise HTTPException(404, "event not found")
+    event = dict(record["data"])
+    if value.patch is not None:
+        event["patch"] = value.patch
+        event["classification_status"] = "PATCH_CONFIRMED" if value.confirmed else "PATCH_REJECTED"
+    if value.related_task_ids is not None:
+        event["related_task_ids"] = value.related_task_ids
+    event["review_status"] = "CONFIRMED" if value.confirmed else "REJECTED"
+    event["reviewed_at"] = utcnow()
+    db.put_json(
+        "events", event_id, event, project_id=project_id,
+        fingerprint=record.get("fingerprint"), created_at=record.get("created_at"),
+    )
+    notify_project(
+        db,
+        project_id,
+        "event_reviewed",
+        "변경 해석 확인됨" if value.confirmed else "변경 해석 보류됨",
+        "변경 사실을 확인했습니다. 영향 분석을 진행할 수 있습니다." if value.confirmed else "변경 해석을 확인하지 않아 영향 분석을 진행하지 않습니다.",
+        data={"event_id": event_id, "review_status": event["review_status"]},
+    )
+    return {"event_id": event_id, "event": event}
+
+
 @app.post("/api/projects/{project_id}/analyses", status_code=202, dependencies=[Depends(authorize)])
 def create_analysis(project_id: str, value: AnalysisInput, idempotency_key: str | None = Header(default=None)) -> dict[str, Any]:
     db = store()
@@ -686,6 +722,9 @@ def create_analysis(project_id: str, value: AnalysisInput, idempotency_key: str 
     event = db.get_json("events", value.event_id, project_id)
     if not event:
         raise HTTPException(404, "event not found")
+    event_data = event["data"]
+    if event_data.get("patch") and event_data.get("review_status") != "CONFIRMED":
+        raise HTTPException(409, "review the proposed change before analysis")
     version = db.get_json("versions", value.version_id, project_id) if value.version_id else db.current_version(project_id)
     if not version:
         raise HTTPException(409, "schedule version not found")
@@ -750,12 +789,12 @@ def prepare_scenario(scenario_id: str) -> dict[str, Any]:
     version = db.get_json("versions", scenario["version_id"], scenario["project_id"])
     due_at = decision_deadline(project["data"] if project else {}, data, data.get("option_ids", []), (version or {}).get("data", {}).get("options", []))
     for condition in data.get("required_confirmations", []):
-        action = {"owner": "개발구매팀", "state": "OPEN", "request": f"{condition} 확인 및 수락", "condition": condition, "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
+        action = {"owner": "프로젝트 운영팀", "state": "OPEN", "request": f"{condition} 확인 및 수락", "condition": condition, "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
         action_id = identifier()
         db.put_json("actions", action_id, action, project_id=scenario["project_id"], event_id=event_id, scenario_id=scenario_id)
         actions.append({"id": action_id, "data": action})
     if not actions:
-        action = {"owner": "개발구매팀", "state": "OPEN", "request": "대응안 검토 및 관계자 협의", "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
+        action = {"owner": "프로젝트 운영팀", "state": "OPEN", "request": "대응안 검토 및 관계자 협의", "due_at": due_at, "scenario_id": scenario_id, "event_id": event_id}
         action_id = identifier()
         db.put_json("actions", action_id, action, project_id=scenario["project_id"], event_id=event_id, scenario_id=scenario_id)
         actions.append({"id": action_id, "data": action})

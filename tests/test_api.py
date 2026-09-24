@@ -60,6 +60,23 @@ def test_watch_plan_rejects_unapproved_source_host(client):
     assert response.status_code == 422
 
 
+def test_analysis_requires_review_for_inferred_change(client):
+    project_id, preview, _ = baseline(client)
+    event = request(
+        client, "post", f"/api/projects/{project_id}/events",
+        json={"content": preview["events"][0]["body"], "source_label": "supplier@example.com"},
+    )
+    response = client.post(
+        f"/api/projects/{project_id}/analyses",
+        headers={"Authorization": "Bearer test-token"},
+        json={"event_id": event["event_id"]},
+    )
+    assert response.status_code == 409
+    request(client, "patch", f"/api/projects/{project_id}/events/{event['event_id']}/review", json={"confirmed": True})
+    queued = request(client, "post", f"/api/projects/{project_id}/analyses", json={"event_id": event["event_id"]})
+    assert queued["status"] == "queued"
+
+
 def e01(client, project_id, preview):
     event = request(
         client, "post", f"/api/projects/{project_id}/events",
@@ -69,6 +86,7 @@ def e01(client, project_id, preview):
             "simulation_as_of": "2026-09-23T09:00:00+02:00",
         },
     )
+    request(client, "patch", f"/api/projects/{project_id}/events/{event['event_id']}/review", json={"confirmed": True})
     return event["event_id"]
 
 
@@ -81,11 +99,17 @@ def test_e01_budget_replan_approval_commit_and_export(client):
     assert result["run"]["status"] == "succeeded"
     assert result["run"]["data"]["agent_status"] == "llm_unavailable"
     scenarios = {tuple(item["data"]["option_ids"]): item for item in result["scenarios"]}
+    assert scenarios[()]["data"]["budget_status"] == "UNSET"
     assert scenarios[()]["data"]["finish_date"] == "2026-10-30"
     assert scenarios[("OPT-02",)]["data"]["finish_date"] == "2026-10-29"
     assert scenarios[("OPT-03",)]["data"]["finish_date"] == "2026-10-28"
-    assert not scenarios[("OPT-03",)]["data"]["budget_met"]
-    assert not any(item["data"]["target_met"] and item["data"]["budget_met"] for item in result["scenarios"])
+
+    bounded_run = request(client, "post", f"/api/runs/{queued['run_id']}/replan", json={"budget_krw": 3_000_000})
+    assert run_once(Store())
+    bounded = request(client, "get", f"/api/runs/{bounded_run['run_id']}")
+    bounded_scenarios = {tuple(item["data"]["option_ids"]): item for item in bounded["scenarios"]}
+    assert not bounded_scenarios[("OPT-03",)]["data"]["budget_met"]
+    assert not any(item["data"]["target_met"] and item["data"]["budget_met"] for item in bounded["scenarios"])
 
     new_run = request(client, "post", f"/api/runs/{queued['run_id']}/replan", json={"budget_krw": 6000000})
     assert run_once(Store())
@@ -99,14 +123,14 @@ def test_e01_budget_replan_approval_commit_and_export(client):
     prepared = request(client, "post", f"/api/scenarios/{scenario_id}/prepare")
     assert len(prepared["actions"]) == 1
     assert prepared["actions"][0]["data"]["due_at"] == "2026-09-11"
-    assert prepared["actions"][0]["data"]["owner"] == "개발구매팀"
+    assert prepared["actions"][0]["data"]["owner"] == "프로젝트 운영팀"
     pending = client.post(
         f"/api/scenarios/{scenario_id}/approve", headers={"Authorization": "Bearer test-token"},
-        json={"actor": "개발구매팀", "confirmed_conditions": option["data"]["required_confirmations"]},
+        json={"actor": "프로젝트 운영팀", "confirmed_conditions": option["data"]["required_confirmations"]},
     )
     assert pending.status_code == 409
     request(client, "patch", f"/api/actions/{prepared['actions'][0]['id']}", json={"state": "ACCEPTED"})
-    request(client, "post", f"/api/scenarios/{scenario_id}/approve", json={"actor": "개발구매팀", "confirmed_conditions": option["data"]["required_confirmations"]})
+    request(client, "post", f"/api/scenarios/{scenario_id}/approve", json={"actor": "프로젝트 운영팀", "confirmed_conditions": option["data"]["required_confirmations"]})
     request(client, "patch", f"/api/actions/{prepared['actions'][0]['id']}", json={"state": "REJECTED"})
     revoked = client.post(f"/api/scenarios/{scenario_id}/commit", headers={"Authorization": "Bearer test-token"})
     assert revoked.status_code == 409
@@ -163,7 +187,7 @@ def test_duplicate_event_and_stale_scenario(client):
         actions = request(client, "post", f"/api/scenarios/{item['id']}/prepare")["actions"]
         for action in actions:
             request(client, "patch", f"/api/actions/{action['id']}", json={"state": "ACCEPTED"})
-        request(client, "post", f"/api/scenarios/{item['id']}/approve", json={"actor": "개발구매팀", "confirmed_conditions": item["data"]["required_confirmations"]})
+        request(client, "post", f"/api/scenarios/{item['id']}/approve", json={"actor": "프로젝트 운영팀", "confirmed_conditions": item["data"]["required_confirmations"]})
     request(client, "post", f"/api/scenarios/{first['id']}/commit")
     conflict = client.post(f"/api/scenarios/{second['id']}/commit", headers={"Authorization": "Bearer test-token"})
     assert conflict.status_code == 409

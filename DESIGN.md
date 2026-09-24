@@ -5,7 +5,7 @@
 - Status: Active direction; the light editorial workspace and flat operational illustrations are the current visual baseline, pending responsive and accessibility QA.
 - Last refreshed: 2026-09-24.
 - Primary surfaces: onboarding, Overview, Changes, Schedule, Scenarios, Actions, History.
-- Evidence reviewed: `REPLAN_PROJECT_MASTER.md`, the current `/workspaces`, `/workspaces/new`, and project workspace implementations, `apps/web/app/styles.css`, `assets/brand/README.md`, `apps/web/public/images/workspace/`, the local Lazyweb REPLAN UX/UI research, and the product-owner decision that the 개발구매팀 operates the project through one shared team account.
+- Evidence reviewed: `REPLAN_PROJECT_MASTER.md`, the current `/workspaces`, `/workspaces/new`, and project workspace implementations, `apps/web/app/styles.css`, `assets/brand/README.md`, `apps/web/public/images/workspace/`, the local Lazyweb REPLAN UX/UI research, and the product-owner decision that one internal project operations team operates the project through a shared account.
 - This file is the portable implementation brief. The local research folder contains third-party reference screenshots and is not part of the repository.
 
 ## Brand
@@ -17,23 +17,32 @@
 
 ## Product goals
 
-- Goals: let a 개발구매팀 understand a changed project schedule, compare feasible responses, and move its approved decision into actions and Excel output from one team workspace.
+- Goals: let an internal project operations team understand a changed project schedule, compare feasible responses, and move its approved decision into actions and Excel output from one team workspace.
 - Non-goals: general-purpose AI chat, full ERP, automatic approval without evidence and human review, or a multi-company collaboration workspace that requires suppliers and EPC partners to sign in.
 - Success signals: a user can identify what changed, its schedule/cost impact, the outstanding confirmation, and the next action without prompting the AI.
 
+### Research-derived product boundary
+
+- The demo is deliberately narrower than generic project-risk management: one equipment package moving through delivery, site readiness, installation, testing/commissioning, and handover.
+- The core unit is a change-response decision, not a four-party collaboration network. External suppliers, battery companies, EPCs, and construction partners remain evidence sources or confirmation targets while the internal team owns the decision.
+- A believable change does not add the same delay to every task. Arrival, site readiness, qualified people, approvals, and reserved supplier capacity are separate conditions that must be linked before the schedule is recalculated.
+- The response loop is `message → extracted facts → human confirmation → impact analysis → conditional options → request confirmation → supplier/team reply → recalculation → approval → new schedule/export`.
+- AI may interpret a message, suggest affected tasks, and ask for missing facts. The deterministic scheduler remains responsible for dates, dependencies, capacity, and calculated costs. Unknown quoted cost is shown as unknown, never as zero.
+
 ## Personas and jobs
 
-- Primary persona: a battery company's 개발구매팀 using one shared team account. The MVP does not distinguish individual team members or require separate approver identities.
-- User jobs: import the team's working schedule, inspect changes received from external parties, evaluate alternatives against constraints, approve a version as the 개발구매팀, and follow the team's actions.
+- Primary persona: a cross-functional 프로젝트 운영팀 using one shared team account. Depending on the company this may include a project manager, procurement, engineering, site, or PMO responsibilities; the product is not positioned around one department name.
+- User jobs: import the team's working schedule, inspect changes received from external parties, evaluate alternatives against constraints, approve a version as the 프로젝트 운영팀, and follow the team's actions.
 - External parties: EPC, equipment vendors, material suppliers, logistics providers, and site teams appear as evidence sources, task owners, and confirmation targets. They are not REPLAN workspace members in the MVP.
 - Context: desktop-first, information-dense B2B work used by one internal team, with occasional smaller-screen review.
 
 ## Information architecture
 
 - Primary navigation: Overview / Changes / Schedule / Scenarios / Actions / History.
-- Workspace ownership: one 개발구매팀 account owns projects, baselines, decisions, and commits. External organizations are project data, not navigation tenants or invited users.
+- Workspace ownership: one 프로젝트 운영팀 account owns projects, baselines, decisions, and commits. External organizations are project data, not navigation tenants or invited users.
 - First-use flow: Upload → Map → Review → Monitor → Overview.
 - Repeated flow: detect change → show impact and evidence → compare scenarios → confirm assumptions → approve → create actions and Excel output.
+- First demo flow: create the project with only its name, connect a baseline schedule, review a supplier change, then compare the current availability, extended booking, alternative qualified resource, and target renegotiation as conditional responses.
 - Overview hierarchy: decision needed today, new changes, largest impacts, active actions, then overall project status. Lead with actionable language rather than abstract health scores.
 
 ## Design principles
@@ -60,7 +69,7 @@
 ## Components
 
 - Existing components to reuse: the current page's upload, preview, event, scenario, approval, and export interactions; preserve their API behavior while restructuring presentation.
-- New/changed components: AppShell with a 개발구매팀 shared-account context, SideNav, TopContext, decision-first Overview, Impact Timeline, evidence drawer, common-axis Scenario Compare, confirmation checklist, decision receipt, and a small `StateIllustration` wrapper with documented placement and accessibility variants.
+- New/changed components: AppShell with a 프로젝트 운영팀 shared-account context, SideNav, TopContext, decision-first Overview, Impact Timeline, evidence drawer, common-axis Scenario Compare, confirmation checklist, decision receipt, and a small `StateIllustration` wrapper with documented placement and accessibility variants.
 - Variants and states: operational versus demo provenance in evidence details, calculated versus inferred versus needs confirmation, no update versus no impact versus failed/stale source, budget/target/approval eligibility. Provenance is not a project-creation choice.
 - Ownership: `apps/web/app/styles.css` owns shared tokens until a component structure justifies extraction. Avoid adding a UI framework solely for visual restyling.
 
@@ -92,7 +101,8 @@
 
 - Tone: calm, direct, factual Korean; concise verbs and concrete consequences. English is limited to small eyebrows or familiar technical identifiers and never replaces the primary Korean task label.
 - Terminology: use “기준 일정”, “변경”, “영향”, “대응안”, “확인 필요”, “승인”, and “실행 항목” consistently.
-- Account terminology: call the operating identity “개발구매팀 공용 계정”. Do not imply that suppliers, EPC partners, or other external parties have accounts or edit the shared baseline.
+- Account terminology: call the operating identity “프로젝트 운영팀 공용 계정”. Do not imply that suppliers, EPC partners, or other external parties have accounts or edit the shared baseline.
+- Page-title rule: use only the product name, object, or current record as the primary title, such as “REPLAN”, “데모”, “프로젝트”, “새 프로젝트”, or the actual project name. Do not put a job title, target department, product promise, or directional slogan in an application-page title; place necessary context in supporting copy instead.
 - Microcopy: pair numbers with actions and provenance. Do not present inferred statements as calculated facts.
 
 ## Implementation constraints
@@ -104,6 +114,6 @@
 
 ## Open questions
 
-- [ ] Decide when a real deployment needs individual attribution behind the 개발구매팀 account without changing the one-team operating model (product/security owner; affects auditability, not the MVP flow).
+- [ ] Decide when a real deployment needs individual attribution behind the 프로젝트 운영팀 account without changing the one-team operating model (product/security owner; affects auditability, not the MVP flow).
 - [ ] Decide whether public landing and authenticated workspace should share one shell (product owner; affects routing).
 - [ ] Validate the palette, typography, and mobile layout against actual users and screenshots (design/engineering; affects visual acceptance).

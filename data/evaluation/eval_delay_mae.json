@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "metric": "delay_MAE",
+  "case_count": 9,
+  "usable_count": 6,
+  "partially_usable_count": 3,
+  "cases": [
+    {
+      "case_id": "V2-001",
+      "source_risk_id": "RS-001",
+      "project_context": "HL-GA Battery Company LLC (Hyundai Motor Group + LG Energy Solution EV battery cell joint venture), Ellabell, Bryan County, Georgia, USA; adjacent to Hyundai Motor Group Metaplant America.",
+      "usability": "partially_usable",
+      "partial_reason": "None for this case's included metrics; original pre-raid target date is disputed across sources (see source_conflicts), which limits delay_MAE to partially_usable rather than usable.",
+      "schedule_impact": {
+        "delay_value": {
+          "value": "2-3",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        },
+        "delay_unit": "months",
+        "delay_description": {
+          "value": "Hyundai CEO Jose Munoz's own quoted estimate (2025-09-11); actual plant opening occurred April 2026, consistent with a multi-month slip though the exact pre-raid baseline target date is disputed across sources.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        }
+      }
+    },
+    {
+      "case_id": "V2-002",
+      "source_risk_id": "RS-002",
+      "project_context": "Micron Clay Megafab (Fab 1 of a planned multi-fab campus), Clay, New York (Onondaga County), USA.",
+      "usability": "usable",
+      "schedule_impact": {
+        "delay_value": {
+          "value": "2-3",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        },
+        "delay_unit": "years",
+        "delay_description": {
+          "value": "First fab opening shifted from mid/late-2028 to 2030 (Q3 2030 per some outlets); directly attributed to a named county official and the project's own Final EIS document, corroborated across 5 independent outlets.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        }
+      }
+    },
+    {
+      "case_id": "V2-003",
+      "source_risk_id": "RS-003",
+      "project_context": "Samsung Austin Semiconductor fab (operating facility), Austin, Texas, USA.",
+      "usability": "usable",
+      "schedule_impact": {
+        "delay_value": {
+          "value": "6",
+          "evidence_status": "INFERRED",
+          "source_id": "S003"
+        },
+        "delay_unit": "weeks",
+        "delay_description": {
+          "value": "Samsung spokesperson statement (2021-03-30) said the fab had 'reached production close to normal levels... as of last week'; the '~6 weeks' figure is an INFERRED calculation (statement date minus storm date), since no exact day-count was directly quoted. Full normalization was separately stated by Samsung as occurring within Q2 2021.",
+          "evidence_status": "INFERRED",
+          "source_id": "S003"
+        }
+      }
+    },
+    {
+      "case_id": "V2-005",
+      "source_risk_id": "RS-005",
+      "project_context": "Renesas Naka Factory, N3 building (300mm automotive-chip production line), Hitachinaka, Ibaraki Prefecture, Japan.",
+      "usability": "usable",
+      "schedule_impact": {
+        "delay_value": {
+          "value": {
+            "partial_restart_days": 29,
+            "full_recovery_days": 97,
+            "shipment_normalization_weeks": 18
+          },
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        },
+        "delay_unit": "days (primary); weeks (shipment normalization)",
+        "delay_description": {
+          "value": "29 days fire-to-partial-restart (<10% of pre-fire capacity, 2021-03-19 to 2021-04-17); 97 days fire-to-100%-production (2021-03-19 to 2021-06-24); ~18 weeks to expected shipment-level normalization (3rd week of July 2021). All three figures sourced directly to Renesas's own numbered official updates, independently corroborated by Bloomberg and Embedded Computing Design.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        }
+      }
+    },
+    {
+      "case_id": "V3-002",
+      "source_risk_id": "RS-007",
+      "project_context": "General Motors North American assembly plants (Fort Wayne IN, Silao Mexico, Wentzville MO) -- April 2021 shutdown wave.",
+      "usability": "usable",
+      "schedule_impact": {
+        "delay_value": {
+          "value": {
+            "fort_wayne_weeks": 1,
+            "silao_weeks": 1,
+            "wentzville_weeks": 2
+          },
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        },
+        "delay_unit": "weeks",
+        "delay_description": {
+          "value": "Fort Wayne and Silao paused 1 week; Wentzville paused 2 weeks, per GM's dated announcement, cross-confirmed via Washington Post, CNBC, and WANE 15.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        }
+      }
+    },
+    {
+      "case_id": "V3-003",
+      "source_risk_id": "RS-008",
+      "project_context": "Ford Kansas City Assembly Plant (Claycomo, Missouri), USA -- F-150 / Transit production.",
+      "usability": "usable",
+      "schedule_impact": {
+        "delay_value": {
+          "value": {
+            "may_shutdown_weeks": 2,
+            "july_f150_weeks": 2,
+            "july_transit_weeks": 1
+          },
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        },
+        "delay_unit": "weeks",
+        "delay_description": {
+          "value": "Plant halted production for 2 weeks starting May 17, 2021; halted again starting July 12, 2021 (F-150, 2 weeks) and July 19, 2021 (Transit, 1 week), corroborated across WHAS11, Fox4KC, and CBS News.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        }
+      }
+    },
+    {
+      "case_id": "V3-004",
+      "source_risk_id": "RS-009",
+      "project_context": "Ford Saarlouis Assembly Plant (Ford Focus production line), Saarlouis, Saarland, Germany.",
+      "usability": "usable",
+      "schedule_impact": {
+        "delay_value": {
+          "value": "32",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        },
+        "delay_unit": "days",
+        "delay_description": {
+          "value": "Production halted Jan 18 - Feb 19, 2021 (32 days), directly dated and corroborated across at least 4 independent outlets (Bloomberg, CNN, fordauthority.com, Nasdaq/Reuters).",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        }
+      }
+    },
+    {
+      "case_id": "V3-006",
+      "source_risk_id": "RS-011",
+      "project_context": "CATL Debrecen Battery Plant (cell-production lines), Debrecen, Hungary.",
+      "usability": "partially_usable",
+      "partial_reason": "delay_MAE is partially_usable only (delay to trial milestone, not mass production, and the original target is an approximate window not an exact date). This is the closest real-world match found to the original service brief's Hungary regulation example.",
+      "schedule_impact": {
+        "delay_value": {
+          "value": "6-8",
+          "evidence_status": "INFERRED",
+          "source_id": "S011"
+        },
+        "delay_unit": "months",
+        "delay_description": {
+          "value": "From the 'early 2026' target (S&P Global Autotech Insight) to confirmed trial-production start on 2026-09-22 (multi-source confirmed). This is a delay to the TRIAL milestone, not to full mass production, which remains unscheduled; the exact delay length is INFERRED since 'early 2026' is an approximate target window.",
+          "evidence_status": "INFERRED",
+          "source_id": "S011"
+        }
+      }
+    },
+    {
+      "case_id": "V3-007",
+      "source_risk_id": "RS-012",
+      "project_context": "Intel Ohio One (New Albany, Ohio) semiconductor fabs, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "risk_classification and delay_MAE are partially_usable only: this is a compounding, multi-cause, repeatedly-restated delay rather than one clean event -> one impact story, and the category does not map cleanly to the 8-category taxonomy.",
+      "schedule_impact": {
+        "delay_value": {
+          "value": "5",
+          "evidence_status": "INFERRED",
+          "source_id": "S012"
+        },
+        "delay_unit": "years",
+        "delay_description": {
+          "value": "Original 2025 target -> current ~2030 Mod 1 operations target (per Intel's own newsroom, Mod 1 operations 2030-2031, Mod 2 operations 2032). This is a compounding SEQUENCE of at least 3 separate delay announcements over 3 years (2022 target, a 2024 delay, the Feb 2025 delay to 2030), so the cumulative '~5 years' figure is an INFERRED sum, not one OBSERVED single-event figure.",
+          "evidence_status": "INFERRED",
+          "source_id": "S012"
+        }
+      }
+    }
+  ]
+}

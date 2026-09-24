@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "metric": "evidence_retrieval",
+  "case_count": 12,
+  "usable_count": 12,
+  "partially_usable_count": 0,
+  "cases": [
+    {
+      "case_id": "V2-001",
+      "source_risk_id": "RS-001",
+      "project_context": "HL-GA Battery Company LLC (Hyundai Motor Group + LG Energy Solution EV battery cell joint venture), Ellabell, Bryan County, Georgia, USA; adjacent to Hyundai Motor Group Metaplant America.",
+      "usability": "usable",
+      "sources": [
+        "S001",
+        "S002",
+        "S003",
+        "S004",
+        "S005",
+        "S006",
+        "S007"
+      ]
+    },
+    {
+      "case_id": "V2-002",
+      "source_risk_id": "RS-002",
+      "project_context": "Micron Clay Megafab (Fab 1 of a planned multi-fab campus), Clay, New York (Onondaga County), USA.",
+      "usability": "usable",
+      "sources": [
+        "S008",
+        "S009",
+        "S010",
+        "S011",
+        "S012"
+      ]
+    },
+    {
+      "case_id": "V2-003",
+      "source_risk_id": "RS-003",
+      "project_context": "Samsung Austin Semiconductor fab (operating facility), Austin, Texas, USA.",
+      "usability": "usable",
+      "sources": [
+        "S013",
+        "S014",
+        "S015",
+        "S016",
+        "S017"
+      ]
+    },
+    {
+      "case_id": "V2-004",
+      "source_risk_id": "RS-004",
+      "project_context": "Rivian Georgia EV Plant (Stanton Springs North), Social Circle / Rutledge, Georgia, USA.",
+      "usability": "usable",
+      "sources": [
+        "S018",
+        "S019",
+        "S020",
+        "S021",
+        "S022"
+      ]
+    },
+    {
+      "case_id": "V2-005",
+      "source_risk_id": "RS-005",
+      "project_context": "Renesas Naka Factory, N3 building (300mm automotive-chip production line), Hitachinaka, Ibaraki Prefecture, Japan.",
+      "usability": "usable",
+      "sources": [
+        "S023",
+        "S024",
+        "S025",
+        "S026",
+        "S027"
+      ]
+    },
+    {
+      "case_id": "V3-001",
+      "source_risk_id": "RS-006",
+      "project_context": "TSMC Arizona Fab 1 (Phoenix), Arizona, USA.",
+      "usability": "usable",
+      "sources": [
+        "S028",
+        "S029",
+        "S030",
+        "S031"
+      ]
+    },
+    {
+      "case_id": "V3-002",
+      "source_risk_id": "RS-007",
+      "project_context": "General Motors North American assembly plants (Fort Wayne IN, Silao Mexico, Wentzville MO) -- April 2021 shutdown wave.",
+      "usability": "usable",
+      "sources": [
+        "S032",
+        "S033",
+        "S034",
+        "S035"
+      ]
+    },
+    {
+      "case_id": "V3-003",
+      "source_risk_id": "RS-008",
+      "project_context": "Ford Kansas City Assembly Plant (Claycomo, Missouri), USA -- F-150 / Transit production.",
+      "usability": "usable",
+      "sources": [
+        "S036",
+        "S037",
+        "S038",
+        "S039"
+      ]
+    },
+    {
+      "case_id": "V3-004",
+      "source_risk_id": "RS-009",
+      "project_context": "Ford Saarlouis Assembly Plant (Ford Focus production line), Saarlouis, Saarland, Germany.",
+      "usability": "usable",
+      "sources": [
+        "S040",
+        "S041",
+        "S042",
+        "S043"
+      ]
+    },
+    {
+      "case_id": "V3-005",
+      "source_risk_id": "RS-010",
+      "project_context": "VinFast Manufacturing US LLC plant, Chatham County 'Moncure megasite', North Carolina, USA.",
+      "usability": "usable",
+      "sources": [
+        "S044",
+        "S045",
+        "S046",
+        "S047",
+        "S048"
+      ]
+    },
+    {
+      "case_id": "V3-006",
+      "source_risk_id": "RS-011",
+      "project_context": "CATL Debrecen Battery Plant (cell-production lines), Debrecen, Hungary.",
+      "usability": "usable",
+      "sources": [
+        "S049",
+        "S050",
+        "S051",
+        "S052",
+        "S053",
+        "S054",
+        "S055"
+      ]
+    },
+    {
+      "case_id": "V3-007",
+      "source_risk_id": "RS-012",
+      "project_context": "Intel Ohio One (New Albany, Ohio) semiconductor fabs, USA.",
+      "usability": "usable",
+      "sources": [
+        "S056",
+        "S057",
+        "S058",
+        "S059",
+        "S060"
+      ]
+    }
+  ]
+}

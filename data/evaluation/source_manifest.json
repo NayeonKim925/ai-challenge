@@ -1,0 +1,1027 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "source_count": 78,
+  "source_tier_legend": {
+    "1": "Official primary source: company newsroom/press release, government press release, or official regulatory document.",
+    "2": "Major wire service / national business press (Bloomberg, Reuters-syndicated, CNBC, Washington Post, CNN, Axios, Semafor).",
+    "3": "Trade/industry press or specialist outlet (Construction Dive, TrendForce, DataCenterDynamics, ENR, etc.) or a national outlet without wire-service status.",
+    "4": "Regional/local news outlet."
+  },
+  "sources": [
+    {
+      "source_id": "S001",
+      "title": "CNN Business, 2025-09-11",
+      "publisher": "CNN Business",
+      "source_type": "news",
+      "published_date": "2025-09-11",
+      "url": "https://www.cnn.com/2025/09/11/business/hyundai-raid-plant-delay-ceo",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-001"
+      ]
+    },
+    {
+      "source_id": "S002",
+      "title": "Wikipedia, 2025 Georgia Hyundai plant immigration raid",
+      "publisher": "Wikipedia",
+      "source_type": "reference",
+      "published_date": "2025",
+      "url": "https://en.wikipedia.org/wiki/2025_Georgia_Hyundai_plant_immigration_raid",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-001"
+      ]
+    },
+    {
+      "source_id": "S003",
+      "title": "CBS News",
+      "publisher": "CBS News",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://www.cbsnews.com/news/hyundai-georigia-ice-raid-450-detained-electric-vehicles-batteries/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-001"
+      ]
+    },
+    {
+      "source_id": "S004",
+      "title": "CBS News",
+      "publisher": "CBS News",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://www.cbsnews.com/news/georgia-plant-hyundai-ev-expansion-ice-raid/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-001"
+      ]
+    },
+    {
+      "source_id": "S005",
+      "title": "Semafor, 2026-04-14",
+      "publisher": "Semafor",
+      "source_type": "news",
+      "published_date": "2026-04-14",
+      "url": "https://www.semafor.com/article/04/14/2026/hyundai-lg-to-open-battery-plant-after-us-ice-raid-causes-monthslong-delays",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-001"
+      ]
+    },
+    {
+      "source_id": "S006",
+      "title": "AJC, 2026-04",
+      "publisher": "AJC",
+      "source_type": "news",
+      "published_date": "2026-04",
+      "url": "https://www.ajc.com/business/2026/04/hyundai-battery-plant-in-georgia-set-to-open-months-after-ice-raid/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-001"
+      ]
+    },
+    {
+      "source_id": "S007",
+      "title": "Georgia.org official press release, 2023",
+      "publisher": "Georgia.org official press release",
+      "source_type": "official",
+      "published_date": "2023",
+      "url": "https://georgia.org/press-releases/2023/hyundai-motor-group-and-lg-energy-solution-invest-additional-2b-bryan-county",
+      "accessed_date": "2026-09-24",
+      "source_tier": 1,
+      "related_case_ids": [
+        "RS-001"
+      ]
+    },
+    {
+      "source_id": "S008",
+      "title": "Construction Dive",
+      "publisher": "Construction Dive",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.constructiondive.com/news/micron-delay-construction-new-york-megafab/805622/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-002"
+      ]
+    },
+    {
+      "source_id": "S009",
+      "title": "CNY Central (McMahon statement)",
+      "publisher": "CNY Central",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://cnycentral.com/news/local/final-environmental-impact-statement-reveals-micron-construction-delayed-into-2026-onondaga-county-clay-town-hall-executive-ryan-mcmahon-eis-fab-semiconductor",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-002"
+      ]
+    },
+    {
+      "source_id": "S010",
+      "title": "TrendForce, 2025-06-12",
+      "publisher": "TrendForce",
+      "source_type": "trade_press",
+      "published_date": "2025-06-12",
+      "url": "https://www.trendforce.com/news/2025/06/12/news-microns-100b-mega-fab-reportedly-delays-again-with-groundbreaking-pushed-to-late-2025/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-002"
+      ]
+    },
+    {
+      "source_id": "S011",
+      "title": "Engineering News-Record",
+      "publisher": "Engineering News-Record",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.enr.com/articles/61938-micron-pushes-start-of-100b-new-york-megafab-to-2026",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-002"
+      ]
+    },
+    {
+      "source_id": "S012",
+      "title": "constructionowners.com",
+      "publisher": "constructionowners.com",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.constructionowners.com/news/micron-delays-new-york-chip-fabs",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-002"
+      ]
+    },
+    {
+      "source_id": "S013",
+      "title": "Austin American-Statesman, 2021-02-23",
+      "publisher": "Austin American-Statesman",
+      "source_type": "local_news",
+      "published_date": "2021-02-23",
+      "url": "https://www.statesman.com/story/business/2021/02/23/samsungs-austin-fab-still-quiet-after-outages/4549060001/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-003"
+      ]
+    },
+    {
+      "source_id": "S014",
+      "title": "Austin American-Statesman, 2021-03-10",
+      "publisher": "Austin American-Statesman",
+      "source_type": "local_news",
+      "published_date": "2021-03-10",
+      "url": "https://www.statesman.com/story/business/2021/03/10/samsungs-austin-fab-still-shut-down-weeks-after-texas-freeze/6924766002/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-003"
+      ]
+    },
+    {
+      "source_id": "S015",
+      "title": "Austin American-Statesman, 2021-03-30",
+      "publisher": "Austin American-Statesman",
+      "source_type": "local_news",
+      "published_date": "2021-03-30",
+      "url": "https://www.statesman.com/story/business/2021/03/30/samsung-austin-fabrication-plant-online-after-texas-freeze-shutdown-losses/7060018002/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-003"
+      ]
+    },
+    {
+      "source_id": "S016",
+      "title": "Austin American-Statesman, 2021-04-30",
+      "publisher": "Austin American-Statesman",
+      "source_type": "local_news",
+      "published_date": "2021-04-30",
+      "url": "https://www.statesman.com/story/business/2021/04/30/austin-fab-shutdown-during-texas-freeze-cost-samsung-millions/4891405001/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-003"
+      ]
+    },
+    {
+      "source_id": "S017",
+      "title": "Bloomberg, 2021-02-17",
+      "publisher": "Bloomberg",
+      "source_type": "wire",
+      "published_date": "2021-02-17",
+      "url": "https://www.bloomberg.com/news/articles/2021-02-17/texas-power-failure-shuts-chip-factories-squeezes-tight-supply",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-003"
+      ]
+    },
+    {
+      "source_id": "S018",
+      "title": "Engineering News-Record",
+      "publisher": "Engineering News-Record",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.enr.com/articles/58290-rivian-pauses-5b-electric-vehicle-plant-in-georgia",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-004"
+      ]
+    },
+    {
+      "source_id": "S019",
+      "title": "AJC, 2026-08",
+      "publisher": "AJC",
+      "source_type": "news",
+      "published_date": "2026-08",
+      "url": "https://www.ajc.com/business/2026/08/rivian-says-construction-progressing-well-at-5b-georgia-factory-site/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-004"
+      ]
+    },
+    {
+      "source_id": "S020",
+      "title": "Engineering News-Record (groundbreaking)",
+      "publisher": "Engineering News-Record",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.enr.com/articles/61374-rivian-breaks-ground-on-5b-ev-plant-in-georgia",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-004"
+      ]
+    },
+    {
+      "source_id": "S021",
+      "title": "ConstructConnect (DOE loan)",
+      "publisher": "ConstructConnect",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.constructconnect.com/construction-economic-news/rivian-and-doe-finalize-6.6-billion-loan-for-georgia-ev-manufacturing-plant",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-004"
+      ]
+    },
+    {
+      "source_id": "S022",
+      "title": "Rivian newsroom (capacity plan)",
+      "publisher": "Rivian newsroom",
+      "source_type": "official",
+      "published_date": null,
+      "url": "https://rivian.com/newsroom/article/rivian-announces-optimized-capacity-plan-for-georgia-plant",
+      "accessed_date": "2026-09-24",
+      "source_tier": 1,
+      "related_case_ids": [
+        "RS-004"
+      ]
+    },
+    {
+      "source_id": "S023",
+      "title": "Renesas official press release, UPDATE 9",
+      "publisher": "Renesas official press release",
+      "source_type": "official",
+      "published_date": null,
+      "url": "https://www.renesas.com/en/about/press-room/update-9-notice-regarding-semiconductor-manufacturing-factory-naka-factory-fire-production-capacity",
+      "accessed_date": "2026-09-24",
+      "source_tier": 1,
+      "related_case_ids": [
+        "RS-005"
+      ]
+    },
+    {
+      "source_id": "S024",
+      "title": "Renesas official press release, UPDATE 10",
+      "publisher": "Renesas official press release",
+      "source_type": "official",
+      "published_date": null,
+      "url": "https://www.renesas.com/en/about/press-room/update-10-notice-regarding-semiconductor-manufacturing-factory-naka-factory-fire-production-capacity",
+      "accessed_date": "2026-09-24",
+      "source_tier": 1,
+      "related_case_ids": [
+        "RS-005"
+      ]
+    },
+    {
+      "source_id": "S025",
+      "title": "Bloomberg, 2021-03-19",
+      "publisher": "Bloomberg",
+      "source_type": "wire",
+      "published_date": "2021-03-19",
+      "url": "https://www.bloomberg.com/news/articles/2021-03-19/automotive-chipmaker-renesas-says-fire-halted-production",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-005"
+      ]
+    },
+    {
+      "source_id": "S026",
+      "title": "DataCenterDynamics",
+      "publisher": "DataCenterDynamics",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.datacenterdynamics.com/en/news/renesas-semiconductor-fab-catches-fire-impacting-chip-production/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-005"
+      ]
+    },
+    {
+      "source_id": "S027",
+      "title": "Embedded Computing Design",
+      "publisher": "Embedded Computing Design",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://embeddedcomputing.com/technology/analog-and-power/renesas-fire-worse-than-anticipated-3-month-restart-prompts-production-cuts-at-toyota-nissan",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-005"
+      ]
+    },
+    {
+      "source_id": "S028",
+      "title": "Bloomberg, 2023-07-20",
+      "publisher": "Bloomberg",
+      "source_type": "wire",
+      "published_date": "2023-07-20",
+      "url": "https://www.bloomberg.com/news/articles/2023-07-20/tsmc-to-delay-us-fab-production-until-2025-over-worker-shortages",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-006"
+      ]
+    },
+    {
+      "source_id": "S029",
+      "title": "TSMC official Arizona page",
+      "publisher": "TSMC official Arizona page",
+      "source_type": "official",
+      "published_date": null,
+      "url": "https://www.tsmc.com/static/abouttsmcaz/index.htm",
+      "accessed_date": "2026-09-24",
+      "source_tier": 1,
+      "related_case_ids": [
+        "RS-006"
+      ]
+    },
+    {
+      "source_id": "S030",
+      "title": "CNBC, 2024-12-13",
+      "publisher": "CNBC",
+      "source_type": "wire",
+      "published_date": "2024-12-13",
+      "url": "https://www.cnbc.com/2024/12/13/inside-tsmcs-new-chip-fab-where-apple-will-make-chips-in-the-us-.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-006"
+      ]
+    },
+    {
+      "source_id": "S031",
+      "title": "Digitimes",
+      "publisher": "Digitimes",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.digitimes.com/news/a20241107PD237/tsmc-fab-arizona-production-2022.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-006"
+      ]
+    },
+    {
+      "source_id": "S032",
+      "title": "Washington Post, 2021-04-08",
+      "publisher": "Washington Post",
+      "source_type": "wire",
+      "published_date": "2021-04-08",
+      "url": "https://www.washingtonpost.com/technology/2021/04/08/gm-manufacturing-chip-shortage/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-007"
+      ]
+    },
+    {
+      "source_id": "S033",
+      "title": "WANE 15",
+      "publisher": "WANE 15",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://www.wane.com/news/local-news/chip-shortage-forces-gm-to-pause-production-fort-wayne-assembly/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-007"
+      ]
+    },
+    {
+      "source_id": "S034",
+      "title": "CNBC",
+      "publisher": "CNBC",
+      "source_type": "wire",
+      "published_date": null,
+      "url": "https://www.cnbc.com/2021/04/08/gm-cutting-production-at-several-plants-due-to-chip-shortage",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-007"
+      ]
+    },
+    {
+      "source_id": "S035",
+      "title": "Forbes, 2021-09-02",
+      "publisher": "Forbes",
+      "source_type": "trade_press",
+      "published_date": "2021-09-02",
+      "url": "https://www.forbes.com/sites/edgarsten/2021/09/02/chip-shortage-closes-gm-plants-adds-to-tight-inventories/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-007"
+      ]
+    },
+    {
+      "source_id": "S036",
+      "title": "WHAS11",
+      "publisher": "WHAS11",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://www.whas11.com/article/news/local/ford-gm-halt-some-production-chip-shortage-worsens/417-990ce85a-9990-48cc-8d7d-0bd04c34d40d",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-008"
+      ]
+    },
+    {
+      "source_id": "S037",
+      "title": "Fox4KC",
+      "publisher": "Fox4KC",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://fox4kc.com/business/fords-kansas-city-plant-hit-with-another-shutdown-due-to-chip-shortage/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-008"
+      ]
+    },
+    {
+      "source_id": "S038",
+      "title": "CBS News",
+      "publisher": "CBS News",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://www.cbsnews.com/news/gm-and-ford-semiconductor-plant-closing-michigan-illinois-missouri-auto-industry/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-008"
+      ]
+    },
+    {
+      "source_id": "S039",
+      "title": "Yahoo News",
+      "publisher": "Yahoo News",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://news.yahoo.com/parts-shortage-forces-months-long-100000402.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 4,
+      "related_case_ids": [
+        "RS-008"
+      ]
+    },
+    {
+      "source_id": "S040",
+      "title": "Bloomberg, 2021-01-15",
+      "publisher": "Bloomberg",
+      "source_type": "wire",
+      "published_date": "2021-01-15",
+      "url": "https://www.bloomberg.com/news/articles/2021-01-15/ford-halts-focus-car-plant-for-full-month-due-to-chip-shortage",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-009"
+      ]
+    },
+    {
+      "source_id": "S041",
+      "title": "CNN Business, 2021-01-18",
+      "publisher": "CNN Business",
+      "source_type": "news",
+      "published_date": "2021-01-18",
+      "url": "https://www.cnn.com/2021/01/18/business/ford-auto-chip-shortage/index.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-009"
+      ]
+    },
+    {
+      "source_id": "S042",
+      "title": "fordauthority.com",
+      "publisher": "fordauthority.com",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://fordauthority.com/2021/01/ford-to-idle-saarlouis-assembly-plant-over-microchip-shortage/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-009"
+      ]
+    },
+    {
+      "source_id": "S043",
+      "title": "Nasdaq/Reuters",
+      "publisher": "Nasdaq/Reuters",
+      "source_type": "wire",
+      "published_date": null,
+      "url": "https://www.nasdaq.com/articles/ford-shuts-down-german-plant-temporarily-due-to-chip-shortage-2021-01-19",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-009"
+      ]
+    },
+    {
+      "source_id": "S044",
+      "title": "NC Newsline, 2026-05-21",
+      "publisher": "NC Newsline",
+      "source_type": "news",
+      "published_date": "2026-05-21",
+      "url": "https://ncnewsline.com/2026/05/21/north-carolina-slams-brakes-on-ev-megafactory-deal-after-years-of-delay/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-010"
+      ]
+    },
+    {
+      "source_id": "S045",
+      "title": "Chapelboro",
+      "publisher": "Chapelboro",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://chapelboro.com/news/state-news/as-north-carolina-sues-vinfast-over-stalled-plant-heres-a-timeline-of-the-chatham-county-project",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-010"
+      ]
+    },
+    {
+      "source_id": "S046",
+      "title": "WRAL",
+      "publisher": "WRAL",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://www.wral.com/business/nc-jeff-jackson-vinfast-lawsuit-chatham-county-may-2026/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-010"
+      ]
+    },
+    {
+      "source_id": "S047",
+      "title": "Axios Raleigh",
+      "publisher": "Axios Raleigh",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://www.axios.com/local/raleigh/2026/05/21/north-carolina-sues-vinfast-to-take-back-control-of-chatham-county-land",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-010"
+      ]
+    },
+    {
+      "source_id": "S048",
+      "title": "Chatham Journal",
+      "publisher": "Chatham Journal",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://chathamjournal.com/2026/05/25/north-carolina-hits-the-brakes-on-vinfast-how-a-chatham-county-ev-dream-became-a-court-fight/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-010"
+      ]
+    },
+    {
+      "source_id": "S049",
+      "title": "S&P Global Autotech Insight",
+      "publisher": "S&P Global Autotech Insight",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://autotechinsight.spglobal.com/news/5283936/catl-plans-to-begin-production-operations-at-its-plant-in-hungary-by-early-2026",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-011"
+      ]
+    },
+    {
+      "source_id": "S050",
+      "title": "CnEVPost, 2026-09-22",
+      "publisher": "CnEVPost",
+      "source_type": "trade_press",
+      "published_date": "2026-09-22",
+      "url": "https://cnevpost.com/2026/09/22/catl-begins-trial-cell-production-hungary-plant/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-011"
+      ]
+    },
+    {
+      "source_id": "S051",
+      "title": "Electrive, 2026-09-23",
+      "publisher": "Electrive",
+      "source_type": "trade_press",
+      "published_date": "2026-09-23",
+      "url": "https://www.electrive.com/2026/09/23/catl-begins-test-production-of-battery-cells-in-debrecen/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-011"
+      ]
+    },
+    {
+      "source_id": "S052",
+      "title": "CarNewsChina, 2026-09-22",
+      "publisher": "CarNewsChina",
+      "source_type": "trade_press",
+      "published_date": "2026-09-22",
+      "url": "https://carnewschina.com/2026/09/22/catls-hungarian-plant-with-a-planned-100-gwh-capacity-begins-trial-production-today/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-011"
+      ]
+    },
+    {
+      "source_id": "S053",
+      "title": "SCMP",
+      "publisher": "SCMP",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://www.scmp.com/business/china-business/article/3368463/chinese-ev-battery-giant-catl-starts-trial-production-hungarian-factory",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-011"
+      ]
+    },
+    {
+      "source_id": "S054",
+      "title": "Business & Human Rights Resource Centre",
+      "publisher": "Business & Human Rights Resource Centre",
+      "source_type": "ngo_official",
+      "published_date": null,
+      "url": "https://www.business-humanrights.org/en/latest-news/hungary-catl-battery-plant-ordered-into-temporary-suspension-over-occupational-safety-failures/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 1,
+      "related_case_ids": [
+        "RS-011"
+      ]
+    },
+    {
+      "source_id": "S055",
+      "title": "Caixin Global, 2026-09-02",
+      "publisher": "Caixin Global",
+      "source_type": "news",
+      "published_date": "2026-09-02",
+      "url": "https://www.caixinglobal.com/2026-09-02/catls-hungary-cell-plant-halted-after-nickel-exposure-incident-102480858.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-011"
+      ]
+    },
+    {
+      "source_id": "S056",
+      "title": "Intel Newsroom, Ohio One Construction Timeline Update",
+      "publisher": "Intel Newsroom",
+      "source_type": "official",
+      "published_date": null,
+      "url": "https://newsroom.intel.com/corporate/ohio-one-construction-timeline-update",
+      "accessed_date": "2026-09-24",
+      "source_tier": 1,
+      "related_case_ids": [
+        "RS-012"
+      ]
+    },
+    {
+      "source_id": "S057",
+      "title": "CNBC, 2025-02-28",
+      "publisher": "CNBC",
+      "source_type": "wire",
+      "published_date": "2025-02-28",
+      "url": "https://www.cnbc.com/2025/02/28/intel-delays-ohio-plant-opening-to-2030-production-was-to-start-2026.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-012"
+      ]
+    },
+    {
+      "source_id": "S058",
+      "title": "DataCenterDynamics",
+      "publisher": "DataCenterDynamics",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.datacenterdynamics.com/en/news/intel-pushes-back-construction-timeline-on-20bn-ohio-chip-fab/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-012"
+      ]
+    },
+    {
+      "source_id": "S059",
+      "title": "Tom's Hardware",
+      "publisher": "Tom's Hardware",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.tomshardware.com/tech-industry/semiconductors/intels-ohio-fabs-could-slip-to-late-2026-report",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-012"
+      ]
+    },
+    {
+      "source_id": "S060",
+      "title": "hoodline.com",
+      "publisher": "hoodline.com",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://hoodline.com/2026/03/intel-s-new-albany-chip-factory-delayed-to-2030-in-slow-burn-buildout/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-012"
+      ]
+    },
+    {
+      "source_id": "S061",
+      "title": "Tennessee Lookout, 2025-12-16",
+      "publisher": "Tennessee Lookout",
+      "source_type": "local_news",
+      "published_date": "2025-12-16",
+      "url": "https://tennesseelookout.com/2025/12/16/ford-scraps-plans-for-electric-pickup-at-blueoval-city-turns-to-gas-powered-truck-models/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-013"
+      ]
+    },
+    {
+      "source_id": "S062",
+      "title": "Tennessee Lookout, 2026-07-23",
+      "publisher": "Tennessee Lookout",
+      "source_type": "local_news",
+      "published_date": "2026-07-23",
+      "url": "https://tennesseelookout.com/2026/07/23/what-to-know-about-fords-blueoval-city-plant-5-years-later/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-013"
+      ]
+    },
+    {
+      "source_id": "S063",
+      "title": "WREG",
+      "publisher": "WREG",
+      "source_type": "local_news",
+      "published_date": null,
+      "url": "https://wreg.com/news/blueoval-city/blue-oval-city-to-produce-new-gas-powered-trucks-models-in-2029/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-013"
+      ]
+    },
+    {
+      "source_id": "S064",
+      "title": "Yahoo Finance",
+      "publisher": "Yahoo Finance",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://finance.yahoo.com/news/ford-changes-mean-blueoval-city-233216702.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-013"
+      ]
+    },
+    {
+      "source_id": "S065",
+      "title": "Tennessee Lookout, 2026-02-18",
+      "publisher": "Tennessee Lookout",
+      "source_type": "local_news",
+      "published_date": "2026-02-18",
+      "url": "https://tennesseelookout.com/2026/02/18/ford-changed-direction-on-plans-for-its-west-tennessee-plant-what-happens-now/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-013"
+      ]
+    },
+    {
+      "source_id": "S066",
+      "title": "Construction Dive",
+      "publisher": "Construction Dive",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.constructiondive.com/news/tsmc-deal-arizona-labor-union-chip-factory/704847/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-014"
+      ]
+    },
+    {
+      "source_id": "S067",
+      "title": "Rest of World, 2024",
+      "publisher": "Rest of World",
+      "source_type": "trade_press",
+      "published_date": "2024",
+      "url": "https://restofworld.org/2024/tsmc-arizona-expansion/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-014"
+      ]
+    },
+    {
+      "source_id": "S068",
+      "title": "Tom's Hardware",
+      "publisher": "Tom's Hardware",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.tomshardware.com/tech-industry/semiconductors/samsungs-yield-issues-reportedly-delays-taylor-fab-launch-to-2026",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-015"
+      ]
+    },
+    {
+      "source_id": "S069",
+      "title": "DataCenterDynamics",
+      "publisher": "DataCenterDynamics",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.datacenterdynamics.com/en/news/report-samsung-delays-completion-of-texas-chip-fab-amid-struggle-to-find-customers/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-015"
+      ]
+    },
+    {
+      "source_id": "S070",
+      "title": "TrendForce",
+      "publisher": "TrendForce",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.trendforce.com/news/2026/06/02/news-samsung-accelerates-u-s-expansion-as-taylor-fab-targets-2027-start-hq-reportedly-moves-to-texas-in-2026/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-015"
+      ]
+    },
+    {
+      "source_id": "S071",
+      "title": "Kansas Reflector, 2025-07-11",
+      "publisher": "Kansas Reflector",
+      "source_type": "local_news",
+      "published_date": "2025-07-11",
+      "url": "https://kansasreflector.com/2025/07/11/panasonic-to-delay-production-at-kansas-battery-plant-as-electric-car-sales-decline-policies-shift/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-016"
+      ]
+    },
+    {
+      "source_id": "S072",
+      "title": "BatteryTechOnline",
+      "publisher": "BatteryTechOnline",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://www.batterytechonline.com/battery-manufacturing/panasonic-opens-kansas-ev-battery-plant-while-delaying-full-production-timeline",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-016"
+      ]
+    },
+    {
+      "source_id": "S073",
+      "title": "Balkan Insight, 2026-02-23",
+      "publisher": "Balkan Insight",
+      "source_type": "news",
+      "published_date": "2026-02-23",
+      "url": "https://balkaninsight.com/2026/02/23/battery-makers-a-toxic-debate-in-hungarys-election/rd/",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-017"
+      ]
+    },
+    {
+      "source_id": "S074",
+      "title": "TeslAnt",
+      "publisher": "TeslAnt",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://teslant.com/en/news/hungary-environmental-exemptions-catl-byd-battery-plants-2026-09",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-017"
+      ]
+    },
+    {
+      "source_id": "S075",
+      "title": "S&P Global Autotech Insight",
+      "publisher": "S&P Global Autotech Insight",
+      "source_type": "trade_press",
+      "published_date": null,
+      "url": "https://autotechinsight.spglobal.com/news/5277858/northvolts-battery-plant-in-canada-may-be-delayed-by-up-to-18-months",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-018"
+      ]
+    },
+    {
+      "source_id": "S076",
+      "title": "CBC",
+      "publisher": "CBC",
+      "source_type": "news",
+      "published_date": null,
+      "url": "https://amp.cbc.ca/news/canada/montreal/delay-northvolt-battery-plant-quebec-1.7310843",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-018"
+      ]
+    },
+    {
+      "source_id": "S077",
+      "title": "CNBC, 2025-10-15",
+      "publisher": "CNBC",
+      "source_type": "wire",
+      "published_date": "2025-10-15",
+      "url": "https://www.cnbc.com/2025/10/15/auto-industry-raises-the-alarm-as-china-tightens-rare-earth-curbs.html",
+      "accessed_date": "2026-09-24",
+      "source_tier": 2,
+      "related_case_ids": [
+        "RS-019"
+      ]
+    },
+    {
+      "source_id": "S078",
+      "title": "CSIS",
+      "publisher": "CSIS",
+      "source_type": "think_tank",
+      "published_date": null,
+      "url": "https://www.csis.org/analysis/rare-earth-export-restrictions-one-year-later",
+      "accessed_date": "2026-09-24",
+      "source_tier": 3,
+      "related_case_ids": [
+        "RS-019"
+      ]
+    }
+  ]
+}

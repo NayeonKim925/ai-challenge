@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-09-24",
+  "total_l2_cases": 19,
+  "total_l3_cases": 12,
+  "grade_A_count": 7,
+  "grade_B_count": 8,
+  "grade_C_count": 4,
+  "risk_category_distribution": {
+    "labor": 2,
+    "labor / contractor-construction": 1,
+    "weather / natural disaster": 1,
+    "contractor/construction (financial/capital-allocation driver)": 1,
+    "equipment (industrial fire)": 1,
+    "supply chain / logistics": 3,
+    "regulation/permitting + contractual default": 1,
+    "regulation/permitting + labor/occupational-safety": 1,
+    "regulation/policy & funding uncertainty": 1,
+    "demand/strategy-driven product-scope change": 1,
+    "labor (compounded by funding/geopolitical uncertainty)": 1,
+    "equipment / process-yield": 1,
+    "geopolitical/trade (EV tax credit policy) + demand": 1,
+    "regulation/permitting": 1,
+    "contractor/construction (parent-company financial distress)": 1,
+    "geopolitical / trade": 1
+  },
+  "country_distribution": {
+    "United States": 12,
+    "Japan": 1,
+    "United States / Mexico": 1,
+    "Germany": 1,
+    "Hungary": 2,
+    "Canada": 1,
+    "China (originating) / global impact": 1
+  },
+  "industry_distribution": {
+    "EV battery cell manufacturing": 1,
+    "semiconductor fab (memory/DRAM)": 1,
+    "semiconductor fab": 5,
+    "EV assembly": 2,
+    "semiconductor fab (automotive microcontrollers)": 1,
+    "automotive assembly": 3,
+    "battery (EV battery cells)": 1,
+    "EV assembly (now: gas-powered truck assembly)": 1,
+    "battery (EV battery)": 3,
+    "automotive / EV component supply chain": 1
+  },
+  "delay_mae_usable_count": 9,
+  "affected_task_usable_count": 11,
+  "response_eval_usable_count": 11,
+  "risk_classification_usable_count": 12,
+  "evidence_retrieval_usable_count": 12,
+  "source_tier_distribution": {
+    "2": 5,
+    "3": 10,
+    "4": 2,
+    "1": 2
+  },
+  "total_unique_sources": 78,
+  "l3_excluded_full_case_count": 1,
+  "l3_metric_level_exclusion_count": 4
+}

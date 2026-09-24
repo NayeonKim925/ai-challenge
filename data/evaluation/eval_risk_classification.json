@@ -1,0 +1,232 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "metric": "risk_classification",
+  "case_count": 12,
+  "usable_count": 6,
+  "partially_usable_count": 6,
+  "cases": [
+    {
+      "case_id": "V2-001",
+      "source_risk_id": "RS-001",
+      "project_context": "HL-GA Battery Company LLC (Hyundai Motor Group + LG Energy Solution EV battery cell joint venture), Ellabell, Bryan County, Georgia, USA; adjacent to Hyundai Motor Group Metaplant America.",
+      "usability": "usable",
+      "risk": {
+        "category": {
+          "value": "labor (immigration enforcement action)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        },
+        "cause": {
+          "value": "DHS/ICE conducted its largest-ever single-site worksite enforcement operation at the HL-GA site on 2025-09-04, detaining ~475 workers (300+ South Korean nationals), most performing specialized equipment installation/commissioning work.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        }
+      }
+    },
+    {
+      "case_id": "V2-002",
+      "source_risk_id": "RS-002",
+      "project_context": "Micron Clay Megafab (Fab 1 of a planned multi-fab campus), Clay, New York (Onondaga County), USA.",
+      "usability": "partially_usable",
+      "partial_reason": "None; this is one of the strongest cases in the dataset.",
+      "risk": {
+        "category": {
+          "value": "labor / contractor-construction",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        },
+        "cause": {
+          "value": "Micron's Final Environmental Impact Statement (released Nov 2025) disclosed the first Clay fab's construction would be delayed; Onondaga County Executive Ryan McMahon attributed it to 'longer construction cycles and labor shortages' (one local report additionally cites 'labor and supply chain issues').",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        }
+      }
+    },
+    {
+      "case_id": "V2-003",
+      "source_risk_id": "RS-003",
+      "project_context": "Samsung Austin Semiconductor fab (operating facility), Austin, Texas, USA.",
+      "usability": "usable",
+      "risk": {
+        "category": {
+          "value": "weather / natural disaster",
+          "evidence_status": "OBSERVED",
+          "source_id": "S003"
+        },
+        "cause": {
+          "value": "Winter Storm Uri (Feb 2021) caused a Texas grid emergency; Austin Energy forced an emergency shutdown of major electricity users including Samsung's Austin fab to preserve power for homes and hospitals.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S003"
+        }
+      }
+    },
+    {
+      "case_id": "V2-004",
+      "source_risk_id": "RS-004",
+      "project_context": "Rivian Georgia EV Plant (Stanton Springs North), Social Circle / Rutledge, Georgia, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "affected_task_retrieval and delay_MAE are NOT_USABLE: the 'restart' is defined differently across at least 5 overlapping, imprecisely-dated milestones, and the DOE loan amount itself is reported inconsistently over time. Usable only for risk_classification (partial), evidence_retrieval, and response_evaluation (partial).",
+      "risk": {
+        "category": {
+          "value": "contractor/construction (true driver: financial/capital-allocation decision, not a clean fit to the 8-category taxonomy)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S004"
+        },
+        "cause": {
+          "value": "Rivian paused construction in March 2024 to conserve capital, shifting planned R2 model production to its existing Normal, Illinois plant instead.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S004"
+        }
+      }
+    },
+    {
+      "case_id": "V2-005",
+      "source_risk_id": "RS-005",
+      "project_context": "Renesas Naka Factory, N3 building (300mm automotive-chip production line), Hitachinaka, Ibaraki Prefecture, Japan.",
+      "usability": "partially_usable",
+      "partial_reason": "None; this is the best-documented case in the dataset (official company source with a full day-by-day recovery curve).",
+      "risk": {
+        "category": {
+          "value": "equipment (industrial fire; not a clean fit to the 8-category taxonomy)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        },
+        "cause": {
+          "value": "Overcurrent ignition in plating equipment (casing/tank materials with low heat resistance) started a fire at 02:47 JST on 2021-03-19, extinguished by 08:12 JST the same day; damaged ~2% of the fab's manufacturing equipment (~600 sq m, ~5% of the cleanroom).",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        }
+      }
+    },
+    {
+      "case_id": "V3-001",
+      "source_risk_id": "RS-006",
+      "project_context": "TSMC Arizona Fab 1 (Phoenix), Arizona, USA.",
+      "usability": "usable",
+      "risk": {
+        "category": {
+          "value": "labor",
+          "evidence_status": "OBSERVED",
+          "source_id": "S006"
+        },
+        "cause": {
+          "value": "TSMC announced (2023-07-20) it would delay N4-process production at its first Arizona fab from a late-2024 target to 2025, citing a shortage of skilled specialized construction/installation labor.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S006"
+        }
+      }
+    },
+    {
+      "case_id": "V3-002",
+      "source_risk_id": "RS-007",
+      "project_context": "General Motors North American assembly plants (Fort Wayne IN, Silao Mexico, Wentzville MO) -- April 2021 shutdown wave.",
+      "usability": "usable",
+      "risk": {
+        "category": {
+          "value": "supply chain / logistics",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        },
+        "cause": {
+          "value": "The global semiconductor shortage forced GM to pause production at Fort Wayne, Silao, and Wentzville per GM's 2021-04-08 announcement, attributed to 'continued parts shortages caused by semiconductor supply constraints from international markets experiencing COVID-19-related restrictions.'",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        }
+      }
+    },
+    {
+      "case_id": "V3-003",
+      "source_risk_id": "RS-008",
+      "project_context": "Ford Kansas City Assembly Plant (Claycomo, Missouri), USA -- F-150 / Transit production.",
+      "usability": "usable",
+      "risk": {
+        "category": {
+          "value": "supply chain / logistics",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        },
+        "cause": {
+          "value": "The global semiconductor shortage forced Ford to halt F-150 and Transit van production at its Kansas City plant, per Ford's own statement: 'The global semiconductor shortage continues to affect global automakers and other industries in all parts of the world.'",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        }
+      }
+    },
+    {
+      "case_id": "V3-004",
+      "source_risk_id": "RS-009",
+      "project_context": "Ford Saarlouis Assembly Plant (Ford Focus production line), Saarlouis, Saarland, Germany.",
+      "usability": "usable",
+      "risk": {
+        "category": {
+          "value": "supply chain / logistics",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        },
+        "cause": {
+          "value": "The global semiconductor shortage forced Ford to idle its Saarlouis, Germany plant (Focus production, ~6,200 workers) from January 18 to February 19, 2021.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        }
+      }
+    },
+    {
+      "case_id": "V3-005",
+      "source_risk_id": "RS-010",
+      "project_context": "VinFast Manufacturing US LLC plant, Chatham County 'Moncure megasite', North Carolina, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "delay_MAE is NOT_USABLE: the project outcome is contract termination/legal dispute, not a late-but-completed project, so there is no well-defined 'delay in days' to measure. Usable for risk_classification (partial), affected_task_retrieval, evidence_retrieval, and response_evaluation.",
+      "risk": {
+        "category": {
+          "value": "regulation/permitting, compounded with contractual default / financial (capital-allocation) factors",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        },
+        "cause": {
+          "value": "VinFast's Chatham County plant, promised March 2022 (7,500 jobs, 2024 production), stalled after clearing trees in 2023 and ceasing further work by December 2024, citing a global EV sales slowdown affecting financing.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        }
+      }
+    },
+    {
+      "case_id": "V3-006",
+      "source_risk_id": "RS-011",
+      "project_context": "CATL Debrecen Battery Plant (cell-production lines), Debrecen, Hungary.",
+      "usability": "partially_usable",
+      "partial_reason": "delay_MAE is partially_usable only (delay to trial milestone, not mass production, and the original target is an approximate window not an exact date). This is the closest real-world match found to the original service brief's Hungary regulation example.",
+      "risk": {
+        "category": {
+          "value": "regulation/permitting, compounded with labor/occupational-safety",
+          "evidence_status": "OBSERVED",
+          "source_id": "S011"
+        },
+        "cause": {
+          "value": "Hungary's withdrawal of the streamlined 'key investment project' permitting exemption, plus a nickel-dust occupational-safety incident that triggered a temporary suspension of CATL's Debrecen cell-production lines.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S011"
+        }
+      }
+    },
+    {
+      "case_id": "V3-007",
+      "source_risk_id": "RS-012",
+      "project_context": "Intel Ohio One (New Albany, Ohio) semiconductor fabs, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "risk_classification and delay_MAE are partially_usable only: this is a compounding, multi-cause, repeatedly-restated delay rather than one clean event -> one impact story, and the category does not map cleanly to the 8-category taxonomy.",
+      "risk": {
+        "category": {
+          "value": "regulation/policy & funding uncertainty (no clean fit in the 8-category taxonomy)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S012"
+        },
+        "cause": {
+          "value": "Intel's Ohio One fabs, originally targeted to begin production in 2025 when the $28B investment was announced in 2022, were repeatedly restated -- confirmed via Intel's own official newsroom page -- citing CHIPS Act funding uncertainty and market conditions.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S012"
+        }
+      }
+    }
+  ]
+}

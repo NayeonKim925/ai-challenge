@@ -1,0 +1,171 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "metric": "affected_task_retrieval",
+  "case_count": 11,
+  "usable_count": 8,
+  "partially_usable_count": 3,
+  "cases": [
+    {
+      "case_id": "V2-001",
+      "source_risk_id": "RS-001",
+      "project_context": "HL-GA Battery Company LLC (Hyundai Motor Group + LG Energy Solution EV battery cell joint venture), Ellabell, Bryan County, Georgia, USA; adjacent to Hyundai Motor Group Metaplant America.",
+      "usability": "partially_usable",
+      "partial_reason": "None for this case's included metrics; original pre-raid target date is disputed across sources (see source_conflicts), which limits delay_MAE to partially_usable rather than usable.",
+      "affected_tasks": [
+        {
+          "value": "Final equipment-installation and commissioning phase",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-002",
+      "source_risk_id": "RS-002",
+      "project_context": "Micron Clay Megafab (Fab 1 of a planned multi-fab campus), Clay, New York (Onondaga County), USA.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "Concrete pouring and foundation work for Fab 1 (postponed to Q2 2026)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        },
+        {
+          "value": "Site clearing/grading for the broader campus (continues on original 2025 schedule)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-003",
+      "source_risk_id": "RS-003",
+      "project_context": "Samsung Austin Semiconductor fab (operating facility), Austin, Texas, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "affected_task_retrieval and response_evaluation are partially_usable only: this is an operating-facility production disruption, not a construction-project WBS milestone, and the response detail found is general rather than granular.",
+      "affected_tasks": [
+        {
+          "value": "Ongoing wafer production/output at the operating fab (not a construction WBS milestone)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S003"
+        }
+      ]
+    },
+    {
+      "case_id": "V2-005",
+      "source_risk_id": "RS-005",
+      "project_context": "Renesas Naka Factory, N3 building (300mm automotive-chip production line), Hitachinaka, Ibaraki Prefecture, Japan.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "N3 building's 300mm production line specifically (not the whole factory)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        }
+      ]
+    },
+    {
+      "case_id": "V3-001",
+      "source_risk_id": "RS-006",
+      "project_context": "TSMC Arizona Fab 1 (Phoenix), Arizona, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "delay_MAE is NOT_USABLE: the core numeric delay claim is contested by unresolved conflicting primary-source vs. press evidence about whether the delay was actually realized in final output timing.",
+      "affected_tasks": [
+        {
+          "value": "Coarse level only (production-start milestone); fine WBS-task-level attribution not established.",
+          "evidence_status": "INFERRED",
+          "source_id": "S006"
+        }
+      ]
+    },
+    {
+      "case_id": "V3-002",
+      "source_risk_id": "RS-007",
+      "project_context": "General Motors North American assembly plants (Fort Wayne IN, Silao Mexico, Wentzville MO) -- April 2021 shutdown wave.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "Silverado/Sierra HD truck line (Fort Wayne, Silao)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        },
+        {
+          "value": "Midsize truck and full-size van lines (Wentzville)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        }
+      ]
+    },
+    {
+      "case_id": "V3-003",
+      "source_risk_id": "RS-008",
+      "project_context": "Ford Kansas City Assembly Plant (Claycomo, Missouri), USA -- F-150 / Transit production.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "F-150 pickup line",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        },
+        {
+          "value": "Transit cargo van line",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        }
+      ]
+    },
+    {
+      "case_id": "V3-004",
+      "source_risk_id": "RS-009",
+      "project_context": "Ford Saarlouis Assembly Plant (Ford Focus production line), Saarlouis, Saarland, Germany.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "Focus-model final assembly line",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        }
+      ]
+    },
+    {
+      "case_id": "V3-005",
+      "source_risk_id": "RS-010",
+      "project_context": "VinFast Manufacturing US LLC plant, Chatham County 'Moncure megasite', North Carolina, USA.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "Site was cleared of trees in 2023 (early WBS-equivalent stage); no further construction occurred after December 2024 -- the project stalled between 'site clearing' and 'vertical construction' and never resumed.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        }
+      ]
+    },
+    {
+      "case_id": "V3-006",
+      "source_risk_id": "RS-011",
+      "project_context": "CATL Debrecen Battery Plant (cell-production lines), Debrecen, Hungary.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "Cell-production lines specifically, distinct from the module-assembly plant (which had already been producing since May 2026)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S011"
+        }
+      ]
+    },
+    {
+      "case_id": "V3-007",
+      "source_risk_id": "RS-012",
+      "project_context": "Intel Ohio One (New Albany, Ohio) semiconductor fabs, USA.",
+      "usability": "usable",
+      "affected_tasks": [
+        {
+          "value": "Site/foundation work (6.4M work-hours, 200,000+ cubic yards of concrete, sub-utility trenches complete, 'go vertical' milestone achieved with below-grade structure complete and above-ground structure underway)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S012"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "metric": "response_evaluation",
+  "case_count": 11,
+  "usable_count": 7,
+  "partially_usable_count": 4,
+  "cases": [
+    {
+      "case_id": "V2-001",
+      "source_risk_id": "RS-001",
+      "project_context": "HL-GA Battery Company LLC (Hyundai Motor Group + LG Energy Solution EV battery cell joint venture), Ellabell, Bryan County, Georgia, USA; adjacent to Hyundai Motor Group Metaplant America.",
+      "usability": "usable",
+      "response": {
+        "value": "Hyundai/LG did not cancel or scale back the project; Hyundai separately announced continuation of a $2.7B expansion of the wider Georgia complex despite the raid. The facility was reported physically complete Dec 2025 and opened April 2026 with 500+ employees.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S001"
+      }
+    },
+    {
+      "case_id": "V2-002",
+      "source_risk_id": "RS-002",
+      "project_context": "Micron Clay Megafab (Fab 1 of a planned multi-fab campus), Clay, New York (Onondaga County), USA.",
+      "usability": "usable",
+      "response": {
+        "value": "Site-clearing and grading work for the wider campus continues in 2025 on schedule even though concrete/foundation work for Fab 1 specifically is deferred to Q2 2026 -- a phased, partial-continuation response rather than a full project halt.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S002"
+      }
+    },
+    {
+      "case_id": "V2-003",
+      "source_risk_id": "RS-003",
+      "project_context": "Samsung Austin Semiconductor fab (operating facility), Austin, Texas, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "affected_task_retrieval and response_evaluation are partially_usable only: this is an operating-facility production disruption, not a construction-project WBS milestone, and the response detail found is general rather than granular.",
+      "response": {
+        "value": "Phased equipment inspection, reconfiguration, and restart, per Samsung's own public statement ('efforts to resume operations... inspect and reconfigure the facility'). No more granular technical mitigation plan was found.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S003"
+      }
+    },
+    {
+      "case_id": "V2-004",
+      "source_risk_id": "RS-004",
+      "project_context": "Rivian Georgia EV Plant (Stanton Springs North), Social Circle / Rutledge, Georgia, USA.",
+      "usability": "partially_usable",
+      "partial_reason": "affected_task_retrieval and delay_MAE are NOT_USABLE: the 'restart' is defined differently across at least 5 overlapping, imprecisely-dated milestones, and the DOE loan amount itself is reported inconsistently over time. Usable only for risk_classification (partial), evidence_retrieval, and response_evaluation (partial).",
+      "response": {
+        "value": "Rivian secured, then later restructured, DOE financing ($6.6B conditional commitment Jan 2025, later 'up to $4.5B'); separately announced an 'optimized capacity plan' raising planned annual capacity from 200,000 to 300,000 vehicles.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S004"
+      }
+    },
+    {
+      "case_id": "V2-005",
+      "source_risk_id": "RS-005",
+      "project_context": "Renesas Naka Factory, N3 building (300mm automotive-chip production line), Hitachinaka, Ibaraki Prefecture, Japan.",
+      "usability": "usable",
+      "response": {
+        "value": "Renesas published a sequential, numbered public disclosure series (UPDATE 1 through at least UPDATE 10) tracking capacity restoration in stages; pursued an expedited equipment-replacement/requalification effort as the substantive recovery action.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S005"
+      }
+    },
+    {
+      "case_id": "V3-001",
+      "source_risk_id": "RS-006",
+      "project_context": "TSMC Arizona Fab 1 (Phoenix), Arizona, USA.",
+      "usability": "usable",
+      "response": {
+        "value": "TSMC hired 900+ local workers by Q1 2023, sent experienced Taiwanese technicians to train local staff, and later reached a project labor agreement with the Arizona Building and Construction Trades Council.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S006"
+      }
+    },
+    {
+      "case_id": "V3-002",
+      "source_risk_id": "RS-007",
+      "project_context": "General Motors North American assembly plants (Fort Wayne IN, Silao Mexico, Wentzville MO) -- April 2021 shutdown wave.",
+      "usability": "partially_usable",
+      "partial_reason": "response_evaluation is partially_usable only: the response is a general strategy statement, not a granular mitigation plan. Note also this event was part of a chronic, recurring 2021 disruption pattern (repeat waves in July and September), not a single isolated event -- see source_conflicts.",
+      "response": {
+        "value": "GM prioritized available semiconductor supply toward its most profitable/high-demand vehicles; no finer-grained mitigation detail was found.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S007"
+      }
+    },
+    {
+      "case_id": "V3-003",
+      "source_risk_id": "RS-008",
+      "project_context": "Ford Kansas City Assembly Plant (Claycomo, Missouri), USA -- F-150 / Transit production.",
+      "usability": "partially_usable",
+      "partial_reason": "response_evaluation is partially_usable only: response detail found is general, not plant-specific. IMPORTANT: this case corrects a STEP 1 error (L3-017) that had wrongly merged this US event with a German event (see V3-004 / source_conflicts).",
+      "response": {
+        "value": "Ford prioritized completing partially-assembled vehicles awaiting missing chip-dependent parts rather than halting all output; no more specific chip-allocation strategy for this plant was found.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S008"
+      }
+    },
+    {
+      "case_id": "V3-005",
+      "source_risk_id": "RS-010",
+      "project_context": "VinFast Manufacturing US LLC plant, Chatham County 'Moncure megasite', North Carolina, USA.",
+      "usability": "usable",
+      "response": {
+        "value": "VinFast repeatedly requested schedule extensions (first 2024-05-10, citing a global EV sales slowdown affecting its financing) and ultimately proposed a drastically scaled-back project (from 7,500 to approximately 1,400 jobs) rather than completing the original plan.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S010"
+      }
+    },
+    {
+      "case_id": "V3-006",
+      "source_risk_id": "RS-011",
+      "project_context": "CATL Debrecen Battery Plant (cell-production lines), Debrecen, Hungary.",
+      "usability": "usable",
+      "response": {
+        "value": "CATL secured 'all permits required for trial operations' before starting; was separately required to complete rectifications of occupational-safety deficiencies (the nickel-dust exposure incident) as a precondition.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S011"
+      }
+    },
+    {
+      "case_id": "V3-007",
+      "source_risk_id": "RS-012",
+      "project_context": "Intel Ohio One (New Albany, Ohio) semiconductor fabs, USA.",
+      "usability": "usable",
+      "response": {
+        "value": "Construction continues (not halted) at a deliberately slower pace; Intel's own statement: 'taking a prudent approach to ensure we complete the project in a financially responsible manner' (EVP Naga Chandrasekaran).",
+        "evidence_status": "OBSERVED",
+        "source_id": "S012"
+      }
+    }
+  ]
+}

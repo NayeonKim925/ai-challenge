@@ -1,0 +1,850 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "generated_by": "STEP 3 (Grade A/B cases from STEP2/STEP2.5 verification, converted into evaluation-ready ground truth)",
+  "record_count": 12,
+  "evidence_status_legend": {
+    "OBSERVED": "Directly stated by a named source (company statement, official document, named official's quote, or a dated reporter-verified figure).",
+    "INFERRED": "A reasonable derivation from OBSERVED facts (e.g. calculating a week-count from two dated statements, or summing a sequence of separately-announced delays) that is not itself a directly quoted figure.",
+    "NOT_AVAILABLE": "No OBSERVED or defensibly INFERRED value exists in the sources reviewed. Added as a 4th practical status beyond the task's OBSERVED/INFERRED/SYNTHETIC triplet specifically so that a missing fact is never mislabeled as OBSERVED or forced into a speculative INFERRED value; SYNTHETIC is reserved for a future augmentation pass and is not used anywhere in this file."
+  },
+  "notes": [
+    "This file excludes V3-008 (Ford BlueOval City, Grade C) entirely -- see data/evaluation/excluded_cases.json.",
+    "usable_metrics and source_conflicts are copied verbatim from data/research/l3_verified_top5.json / l3_verified_additional.json (source of truth); STEP1/STEP2/STEP2.5 files were not modified.",
+    "cost_impact is NOT_AVAILABLE for most cases because a specific 'cost of this delay' figure was rarely stated; where a genuine cost/financial figure WAS directly stated (Samsung Austin $268M, Renesas ~17B yen/month, GM $1.5-2B company-wide, VinFast $400M incentives forfeited), it is included with a note on its exact scope."
+  ],
+  "cases": [
+    {
+      "case_id": "V2-001",
+      "source_risk_id": "RS-001",
+      "project_context": "HL-GA Battery Company LLC (Hyundai Motor Group + LG Energy Solution EV battery cell joint venture), Ellabell, Bryan County, Georgia, USA; adjacent to Hyundai Motor Group Metaplant America.",
+      "risk": {
+        "category": {
+          "value": "labor (immigration enforcement action)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        },
+        "cause": {
+          "value": "DHS/ICE conducted its largest-ever single-site worksite enforcement operation at the HL-GA site on 2025-09-04, detaining ~475 workers (300+ South Korean nationals), most performing specialized equipment installation/commissioning work.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Final equipment-installation and commissioning phase",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": "2-3",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        },
+        "delay_unit": "months",
+        "delay_description": {
+          "value": "Hyundai CEO Jose Munoz's own quoted estimate (2025-09-11); actual plant opening occurred April 2026, consistent with a multi-month slip though the exact pre-raid baseline target date is disputed across sources.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S001"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "No direct 'cost of this delay' figure was found; a separate $2.7B expansion investment continuation is a business decision, not a cost-of-delay figure."
+      },
+      "response": {
+        "value": "Hyundai/LG did not cancel or scale back the project; Hyundai separately announced continuation of a $2.7B expansion of the wider Georgia complex despite the raid. The facility was reported physically complete Dec 2025 and opened April 2026 with 500+ employees.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S001"
+      },
+      "sources": [
+        "S001",
+        "S002",
+        "S003",
+        "S004",
+        "S005",
+        "S006",
+        "S007"
+      ],
+      "ground_truth_quality": "A",
+      "usable_metrics": {
+        "risk_classification": "usable",
+        "affected_task_retrieval": "partially_usable",
+        "delay_MAE": "partially_usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "usable"
+      },
+      "source_conflicts": "(1) Original planned production-start date is reported inconsistently: one source (an importer/logistics listing citing project documentation) states the JV was 'scheduled to start production early 2026' (i.e., a target already close to the eventual April 2026 opening, implying a delay near the CEO's own 2-3 month figure), while another source (Fortune/Semafor-derived reporting) states the facility 'was initially expected to begin production in the second half of 2025' (implying a much larger delay of 7+ months). These were not reconciled in the sources reviewed. (2) One search-summarized source (Electrek, 2026-07-20) states HL-GA is 'based in Bartow County,' which conflicts with the Georgia Governor's official 2023 press release and an importer/logistics facility-address listing, both of which give Ellabell, Bryan County. This is very likely a conflation with a separate, unrelated Hyundai-SK On battery joint venture that genuinely is located in Bartow County; Bryan County/Ellabell is used here as the verified location, based on the two higher-quality (official government + facility-address) sources.",
+      "exclusion_notes": "None for this case's included metrics; original pre-raid target date is disputed across sources (see source_conflicts), which limits delay_MAE to partially_usable rather than usable."
+    },
+    {
+      "case_id": "V2-002",
+      "source_risk_id": "RS-002",
+      "project_context": "Micron Clay Megafab (Fab 1 of a planned multi-fab campus), Clay, New York (Onondaga County), USA.",
+      "risk": {
+        "category": {
+          "value": "labor / contractor-construction",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        },
+        "cause": {
+          "value": "Micron's Final Environmental Impact Statement (released Nov 2025) disclosed the first Clay fab's construction would be delayed; Onondaga County Executive Ryan McMahon attributed it to 'longer construction cycles and labor shortages' (one local report additionally cites 'labor and supply chain issues').",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Concrete pouring and foundation work for Fab 1 (postponed to Q2 2026)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        },
+        {
+          "value": "Site clearing/grading for the broader campus (continues on original 2025 schedule)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": "2-3",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        },
+        "delay_unit": "years",
+        "delay_description": {
+          "value": "First fab opening shifted from mid/late-2028 to 2030 (Q3 2030 per some outlets); directly attributed to a named county official and the project's own Final EIS document, corroborated across 5 independent outlets.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S002"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "No specific dollar cost-of-delay figure found in sources reviewed."
+      },
+      "response": {
+        "value": "Site-clearing and grading work for the wider campus continues in 2025 on schedule even though concrete/foundation work for Fab 1 specifically is deferred to Q2 2026 -- a phased, partial-continuation response rather than a full project halt.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S002"
+      },
+      "sources": [
+        "S008",
+        "S009",
+        "S010",
+        "S011",
+        "S012"
+      ],
+      "ground_truth_quality": "A",
+      "usable_metrics": {
+        "risk_classification": "partially_usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "usable"
+      },
+      "source_conflicts": "The TrendForce report (2025-06-12) describes an earlier, smaller slip ('groundbreaking pushed to late 2025') that was then superseded by the larger 2-3 year delay disclosed in the November 2025 Final EIS -- i.e., this was a sequence of at least two separate delay announcements roughly five months apart, not one single event. This candidate documents the larger, later (Nov 2025, EIS-based) announcement as the primary event; the June 2025 announcement is noted here for context but not treated as part of the same numeric figure. Outlets also vary slightly in phrasing the shift as 'mid-2028 to late 2030' versus '2028 to Q3 2030' -- directionally consistent, not a substantive conflict.",
+      "exclusion_notes": "None; this is one of the strongest cases in the dataset."
+    },
+    {
+      "case_id": "V2-003",
+      "source_risk_id": "RS-003",
+      "project_context": "Samsung Austin Semiconductor fab (operating facility), Austin, Texas, USA.",
+      "risk": {
+        "category": {
+          "value": "weather / natural disaster",
+          "evidence_status": "OBSERVED",
+          "source_id": "S003"
+        },
+        "cause": {
+          "value": "Winter Storm Uri (Feb 2021) caused a Texas grid emergency; Austin Energy forced an emergency shutdown of major electricity users including Samsung's Austin fab to preserve power for homes and hospitals.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S003"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Ongoing wafer production/output at the operating fab (not a construction WBS milestone)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S003"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": "6",
+          "evidence_status": "INFERRED",
+          "source_id": "S003"
+        },
+        "delay_unit": "weeks",
+        "delay_description": {
+          "value": "Samsung spokesperson statement (2021-03-30) said the fab had 'reached production close to normal levels... as of last week'; the '~6 weeks' figure is an INFERRED calculation (statement date minus storm date), since no exact day-count was directly quoted. Full normalization was separately stated by Samsung as occurring within Q2 2021.",
+          "evidence_status": "INFERRED",
+          "source_id": "S003"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": "at least $268 million",
+          "evidence_status": "OBSERVED",
+          "source_id": "S003"
+        },
+        "currency": "USD",
+        "note": "Austin American-Statesman, 2021-04-30: 'Shutdown of Austin fab during freeze cost Samsung at least $268 million.'"
+      },
+      "response": {
+        "value": "Phased equipment inspection, reconfiguration, and restart, per Samsung's own public statement ('efforts to resume operations... inspect and reconfigure the facility'). No more granular technical mitigation plan was found.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S003"
+      },
+      "sources": [
+        "S013",
+        "S014",
+        "S015",
+        "S016",
+        "S017"
+      ],
+      "ground_truth_quality": "A",
+      "usable_metrics": {
+        "risk_classification": "usable",
+        "affected_task_retrieval": "partially_usable",
+        "delay_MAE": "usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "partially_usable"
+      },
+      "source_conflicts": "None material on the core timeline -- the five Statesman articles (spanning 2021-02-23 to 2021-04-30) are internally consistent and build a coherent week-by-week picture. The only imprecision is that Samsung's spokesperson statement does not give an exact percentage or exact crossover date, so the '~6 weeks' figure is a reporter/analyst-calculable approximation from the statement date, not a company-stated exact day count.",
+      "exclusion_notes": "affected_task_retrieval and response_evaluation are partially_usable only: this is an operating-facility production disruption, not a construction-project WBS milestone, and the response detail found is general rather than granular."
+    },
+    {
+      "case_id": "V2-004",
+      "source_risk_id": "RS-004",
+      "project_context": "Rivian Georgia EV Plant (Stanton Springs North), Social Circle / Rutledge, Georgia, USA.",
+      "risk": {
+        "category": {
+          "value": "contractor/construction (true driver: financial/capital-allocation decision, not a clean fit to the 8-category taxonomy)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S004"
+        },
+        "cause": {
+          "value": "Rivian paused construction in March 2024 to conserve capital, shifting planned R2 model production to its existing Normal, Illinois plant instead.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S004"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Coarse-level only: pre-construction site work vs. vertical construction vs. production -- NOT usable at fine WBS-task granularity, since 'pause -> loan finalized (Jan 2025) -> ceremonial groundbreaking (Sep 2025) -> site grading -> vertical construction (2026) -> production (late 2028)' spans 5+ imprecisely-dated, overlapping milestones.",
+          "evidence_status": "INFERRED",
+          "source_id": "S004"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "delay_unit": "not_applicable",
+        "delay_description": {
+          "value": "No source states one authoritative delay figure. A defensible range: ~18 months (pause to ceremonial groundbreaking) or ~2+ years (pause to actual vertical construction), but this is an INFERRED range, not an OBSERVED single value.",
+          "evidence_status": "INFERRED",
+          "source_id": "S004"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "DOE loan figures exist ($6.6B finalized Jan 2025, later described as 'up to $4.5B') but these are financing figures, not a cost-of-delay figure, and are themselves inconsistent across sources (see source_conflicts)."
+      },
+      "response": {
+        "value": "Rivian secured, then later restructured, DOE financing ($6.6B conditional commitment Jan 2025, later 'up to $4.5B'); separately announced an 'optimized capacity plan' raising planned annual capacity from 200,000 to 300,000 vehicles.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S004"
+      },
+      "sources": [
+        "S018",
+        "S019",
+        "S020",
+        "S021",
+        "S022"
+      ],
+      "ground_truth_quality": "B",
+      "usable_metrics": {
+        "risk_classification": "partially_usable",
+        "affected_task_retrieval": "not_usable",
+        "delay_MAE": "not_usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "partially_usable"
+      },
+      "source_conflicts": "(1) The DOE loan amount is reported inconsistently over time: '$6.6 billion' (finalized January 2025) versus a later 'updated loan agreement... valued at up to $4.5 billion' -- the sources reviewed do not clearly explain whether this is a restructuring, a drawdown-limit distinction, or a reporting inconsistency. (2) What counts as 'construction resuming' is defined differently across sources: ENR calls the September 2025 event a 'groundbreaking,' but the August 2026 AJC article describes still relatively early-stage site grading/utilities work, and other reporting states 'vertical construction commences in 2026' -- i.e., the ceremonial groundbreaking and substantive construction start appear to be separated by roughly another 6-12 months, a nuance STEP 1's single 'pause to restart' framing did not capture.",
+      "exclusion_notes": "affected_task_retrieval and delay_MAE are NOT_USABLE: the 'restart' is defined differently across at least 5 overlapping, imprecisely-dated milestones, and the DOE loan amount itself is reported inconsistently over time. Usable only for risk_classification (partial), evidence_retrieval, and response_evaluation (partial)."
+    },
+    {
+      "case_id": "V2-005",
+      "source_risk_id": "RS-005",
+      "project_context": "Renesas Naka Factory, N3 building (300mm automotive-chip production line), Hitachinaka, Ibaraki Prefecture, Japan.",
+      "risk": {
+        "category": {
+          "value": "equipment (industrial fire; not a clean fit to the 8-category taxonomy)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        },
+        "cause": {
+          "value": "Overcurrent ignition in plating equipment (casing/tank materials with low heat resistance) started a fire at 02:47 JST on 2021-03-19, extinguished by 08:12 JST the same day; damaged ~2% of the fab's manufacturing equipment (~600 sq m, ~5% of the cleanroom).",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "N3 building's 300mm production line specifically (not the whole factory)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": {
+            "partial_restart_days": 29,
+            "full_recovery_days": 97,
+            "shipment_normalization_weeks": 18
+          },
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        },
+        "delay_unit": "days (primary); weeks (shipment normalization)",
+        "delay_description": {
+          "value": "29 days fire-to-partial-restart (<10% of pre-fire capacity, 2021-03-19 to 2021-04-17); 97 days fire-to-100%-production (2021-03-19 to 2021-06-24); ~18 weeks to expected shipment-level normalization (3rd week of July 2021). All three figures sourced directly to Renesas's own numbered official updates, independently corroborated by Bloomberg and Embedded Computing Design.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": "approximately 17 billion yen (~$156 million) per month",
+          "evidence_status": "OBSERVED",
+          "source_id": "S005"
+        },
+        "currency": "JPY/USD",
+        "note": "Renesas's own public statement of expected lost revenue during the disruption."
+      },
+      "response": {
+        "value": "Renesas published a sequential, numbered public disclosure series (UPDATE 1 through at least UPDATE 10) tracking capacity restoration in stages; pursued an expedited equipment-replacement/requalification effort as the substantive recovery action.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S005"
+      },
+      "sources": [
+        "S023",
+        "S024",
+        "S025",
+        "S026",
+        "S027"
+      ],
+      "ground_truth_quality": "A",
+      "usable_metrics": {
+        "risk_classification": "partially_usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "usable"
+      },
+      "source_conflicts": "None material. Embedded Computing Design's headline rounds the recovery to a '3-month restart,' consistent with (not contradicting) the more precise Renesas-official 97-day full-recovery and 29-day partial-restart figures -- a difference of rounding granularity across outlets, not a factual disagreement.",
+      "exclusion_notes": "None; this is the best-documented case in the dataset (official company source with a full day-by-day recovery curve)."
+    },
+    {
+      "case_id": "V3-001",
+      "source_risk_id": "RS-006",
+      "project_context": "TSMC Arizona Fab 1 (Phoenix), Arizona, USA.",
+      "risk": {
+        "category": {
+          "value": "labor",
+          "evidence_status": "OBSERVED",
+          "source_id": "S006"
+        },
+        "cause": {
+          "value": "TSMC announced (2023-07-20) it would delay N4-process production at its first Arizona fab from a late-2024 target to 2025, citing a shortage of skilled specialized construction/installation labor.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S006"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Coarse level only (production-start milestone); fine WBS-task-level attribution not established.",
+          "evidence_status": "INFERRED",
+          "source_id": "S006"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": "12",
+          "evidence_status": "INFERRED",
+          "source_id": "S006"
+        },
+        "delay_unit": "months",
+        "delay_description": {
+          "value": "The 12-month figure is the ANNOUNCED delay per the 2023 Bloomberg report (late-2024 to 2025), not a confirmed realized outcome: TSMC's own official webpage claims high-volume production 'started in Q4 2024' (matching the ORIGINAL pre-delay target), while a dated 2024-12-13 CNBC report describes the fab as still in pilot/sample-wafer production at that time. This conflict is UNRESOLVED (see source_conflicts) -- marked INFERRED rather than OBSERVED for this reason.",
+          "evidence_status": "INFERRED",
+          "source_id": "S006"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "No cost-of-delay figure found."
+      },
+      "response": {
+        "value": "TSMC hired 900+ local workers by Q1 2023, sent experienced Taiwanese technicians to train local staff, and later reached a project labor agreement with the Arizona Building and Construction Trades Council.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S006"
+      },
+      "sources": [
+        "S028",
+        "S029",
+        "S030",
+        "S031"
+      ],
+      "ground_truth_quality": "B",
+      "usable_metrics": {
+        "risk_classification": "usable",
+        "affected_task_retrieval": "partially_usable",
+        "delay_MAE": "not_usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "usable"
+      },
+      "source_conflicts": "Material, unresolved: TSMC's own official webpage (a retrospective marketing page, undated) claims high-volume N4 production 'started in Q4 2024' — i.e., matching the original PRE-delay target — while a dated, contemporaneous December 13, 2024 CNBC report describes the fab as still in pilot/sample-wafer production at that time and quotes TSMC itself as only 'dang near back on schedule.' These are difficult to reconcile from the sources reviewed; it is possible they describe different, narrower sub-milestones reached at different points within Q4 2024, but this was not established with confidence.",
+      "exclusion_notes": "delay_MAE is NOT_USABLE: the core numeric delay claim is contested by unresolved conflicting primary-source vs. press evidence about whether the delay was actually realized in final output timing."
+    },
+    {
+      "case_id": "V3-002",
+      "source_risk_id": "RS-007",
+      "project_context": "General Motors North American assembly plants (Fort Wayne IN, Silao Mexico, Wentzville MO) -- April 2021 shutdown wave.",
+      "risk": {
+        "category": {
+          "value": "supply chain / logistics",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        },
+        "cause": {
+          "value": "The global semiconductor shortage forced GM to pause production at Fort Wayne, Silao, and Wentzville per GM's 2021-04-08 announcement, attributed to 'continued parts shortages caused by semiconductor supply constraints from international markets experiencing COVID-19-related restrictions.'",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Silverado/Sierra HD truck line (Fort Wayne, Silao)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        },
+        {
+          "value": "Midsize truck and full-size van lines (Wentzville)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": {
+            "fort_wayne_weeks": 1,
+            "silao_weeks": 1,
+            "wentzville_weeks": 2
+          },
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        },
+        "delay_unit": "weeks",
+        "delay_description": {
+          "value": "Fort Wayne and Silao paused 1 week; Wentzville paused 2 weeks, per GM's dated announcement, cross-confirmed via Washington Post, CNBC, and WANE 15.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": "$1.5-2 billion (company-wide 2021 operating profit impact from the broader chip shortage)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S007"
+        },
+        "currency": "USD",
+        "note": "This is GM's company-wide, full-year estimate for the overall 2021 chip shortage, not isolated to this specific plant-week; reported alongside the April 2021 announcement."
+      },
+      "response": {
+        "value": "GM prioritized available semiconductor supply toward its most profitable/high-demand vehicles; no finer-grained mitigation detail was found.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S007"
+      },
+      "sources": [
+        "S032",
+        "S033",
+        "S034",
+        "S035"
+      ],
+      "ground_truth_quality": "A",
+      "usable_metrics": {
+        "risk_classification": "usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "partially_usable"
+      },
+      "source_conflicts": "No conflict on the April 2021 figures themselves, but important newly-found context: this was NOT an isolated event. The same GM plants experienced repeat chip-shortage shutdowns later in 2021 too — another wave in July 2021 (Flint, Silao, Fort Wayne, week of 7/26-8/2) and again in September 2021 (Fort Wayne/Silao week of 9/6; Wentzville weeks of 9/6 AND 9/13). This candidate is scoped specifically to the April 8, 2021 wave, as in STEP 1, but the broader pattern was a chronic, recurring disruption through 2021 rather than a single one-time event.",
+      "exclusion_notes": "response_evaluation is partially_usable only: the response is a general strategy statement, not a granular mitigation plan. Note also this event was part of a chronic, recurring 2021 disruption pattern (repeat waves in July and September), not a single isolated event -- see source_conflicts."
+    },
+    {
+      "case_id": "V3-003",
+      "source_risk_id": "RS-008",
+      "project_context": "Ford Kansas City Assembly Plant (Claycomo, Missouri), USA -- F-150 / Transit production.",
+      "risk": {
+        "category": {
+          "value": "supply chain / logistics",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        },
+        "cause": {
+          "value": "The global semiconductor shortage forced Ford to halt F-150 and Transit van production at its Kansas City plant, per Ford's own statement: 'The global semiconductor shortage continues to affect global automakers and other industries in all parts of the world.'",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "F-150 pickup line",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        },
+        {
+          "value": "Transit cargo van line",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": {
+            "may_shutdown_weeks": 2,
+            "july_f150_weeks": 2,
+            "july_transit_weeks": 1
+          },
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        },
+        "delay_unit": "weeks",
+        "delay_description": {
+          "value": "Plant halted production for 2 weeks starting May 17, 2021; halted again starting July 12, 2021 (F-150, 2 weeks) and July 19, 2021 (Transit, 1 week), corroborated across WHAS11, Fox4KC, and CBS News.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S008"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "No plant-specific cost figure found (a Ford company-wide $1-2.5B estimate exists for the broader 2021 shortage but was not confirmed as specific to this plant in the sources reviewed)."
+      },
+      "response": {
+        "value": "Ford prioritized completing partially-assembled vehicles awaiting missing chip-dependent parts rather than halting all output; no more specific chip-allocation strategy for this plant was found.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S008"
+      },
+      "sources": [
+        "S036",
+        "S037",
+        "S038",
+        "S039"
+      ],
+      "ground_truth_quality": "A",
+      "usable_metrics": {
+        "risk_classification": "usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "partially_usable"
+      },
+      "source_conflicts": "IMPORTANT CORRECTION TO STEP 1: STEP 1's candidate L3-017 incorrectly bundled a January 2021 'Ford Focus plant' full-month shutdown together with this Kansas City case, both labeled country 'USA.' Verification found the Focus-plant shutdown actually occurred at Ford's Saarlouis, GERMANY plant (Ford's sole European Focus manufacturing site) — Focus was discontinued in North America years earlier, so a US 'Focus plant' cannot exist. That event has been split out as a separate, corrected case (V3-004) with the correct country. The Kansas City figures documented here are independently confirmed and do not depend on the corrected Focus/Saarlouis facts.",
+      "exclusion_notes": "response_evaluation is partially_usable only: response detail found is general, not plant-specific. IMPORTANT: this case corrects a STEP 1 error (L3-017) that had wrongly merged this US event with a German event (see V3-004 / source_conflicts)."
+    },
+    {
+      "case_id": "V3-004",
+      "source_risk_id": "RS-009",
+      "project_context": "Ford Saarlouis Assembly Plant (Ford Focus production line), Saarlouis, Saarland, Germany.",
+      "risk": {
+        "category": {
+          "value": "supply chain / logistics",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        },
+        "cause": {
+          "value": "The global semiconductor shortage forced Ford to idle its Saarlouis, Germany plant (Focus production, ~6,200 workers) from January 18 to February 19, 2021.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Focus-model final assembly line",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": "32",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        },
+        "delay_unit": "days",
+        "delay_description": {
+          "value": "Production halted Jan 18 - Feb 19, 2021 (32 days), directly dated and corroborated across at least 4 independent outlets (Bloomberg, CNN, fordauthority.com, Nasdaq/Reuters).",
+          "evidence_status": "OBSERVED",
+          "source_id": "S009"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "No cost figure found for this specific plant."
+      },
+      "response": {
+        "value": null,
+        "evidence_status": "NOT_AVAILABLE"
+      },
+      "sources": [
+        "S040",
+        "S041",
+        "S042",
+        "S043"
+      ],
+      "ground_truth_quality": "A",
+      "usable_metrics": {
+        "risk_classification": "usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "not_usable"
+      },
+      "source_conflicts": "None material on the core dates/facts. This case exists specifically to correct a geography error inherited from STEP 1 (see V3-003's source_conflicts) — STEP 1's L3-017 labeled this event's country as 'USA,' which was incorrect.",
+      "exclusion_notes": "response_evaluation is NOT_USABLE: no plant-specific mitigation action was found in the sources reviewed (Ford's broader US chip-prioritization strategy was not tied to Saarlouis specifically). This case is a NEW record split out of STEP 1's flawed L3-017 (which incorrectly labeled this German event's country as 'USA')."
+    },
+    {
+      "case_id": "V3-005",
+      "source_risk_id": "RS-010",
+      "project_context": "VinFast Manufacturing US LLC plant, Chatham County 'Moncure megasite', North Carolina, USA.",
+      "risk": {
+        "category": {
+          "value": "regulation/permitting, compounded with contractual default / financial (capital-allocation) factors",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        },
+        "cause": {
+          "value": "VinFast's Chatham County plant, promised March 2022 (7,500 jobs, 2024 production), stalled after clearing trees in 2023 and ceasing further work by December 2024, citing a global EV sales slowdown affecting financing.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Site was cleared of trees in 2023 (early WBS-equivalent stage); no further construction occurred after December 2024 -- the project stalled between 'site clearing' and 'vertical construction' and never resumed.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "delay_unit": "not_applicable",
+        "delay_description": {
+          "value": "Not usable as a single delay figure: the project's status changed from 'delayed' to 'terminated/defaulted' -- Chatham County formally terminated its incentive agreement (2026-07-27) and the State of North Carolina sued to reclaim the site (2026-05-21), a different outcome category than a completed-but-late project.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": "$400 million in incentives forfeited (approx.)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S010"
+        },
+        "currency": "USD",
+        "note": "Chatham County Board of Commissioners cited VinFast's failure to hit key benchmarks needed to earn the $400 million in incentives when terminating the agreement (2026-07-27)."
+      },
+      "response": {
+        "value": "VinFast repeatedly requested schedule extensions (first 2024-05-10, citing a global EV sales slowdown affecting its financing) and ultimately proposed a drastically scaled-back project (from 7,500 to approximately 1,400 jobs) rather than completing the original plan.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S010"
+      },
+      "sources": [
+        "S044",
+        "S045",
+        "S046",
+        "S047",
+        "S048"
+      ],
+      "ground_truth_quality": "B",
+      "usable_metrics": {
+        "risk_classification": "partially_usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "not_usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "usable"
+      },
+      "source_conflicts": "WRAL reports a factual dispute at the center of the lawsuit itself: VinFast executives claim they were about to resume 'vertical' construction as recently as March 2026, while the state's lawsuit disputes whether any genuine construction activity ever occurred; the two sides disagree on the very definition of 'vertical construction activity,' which is a live, unresolved legal dispute, not merely a reporting discrepancy.",
+      "exclusion_notes": "delay_MAE is NOT_USABLE: the project outcome is contract termination/legal dispute, not a late-but-completed project, so there is no well-defined 'delay in days' to measure. Usable for risk_classification (partial), affected_task_retrieval, evidence_retrieval, and response_evaluation."
+    },
+    {
+      "case_id": "V3-006",
+      "source_risk_id": "RS-011",
+      "project_context": "CATL Debrecen Battery Plant (cell-production lines), Debrecen, Hungary.",
+      "risk": {
+        "category": {
+          "value": "regulation/permitting, compounded with labor/occupational-safety",
+          "evidence_status": "OBSERVED",
+          "source_id": "S011"
+        },
+        "cause": {
+          "value": "Hungary's withdrawal of the streamlined 'key investment project' permitting exemption, plus a nickel-dust occupational-safety incident that triggered a temporary suspension of CATL's Debrecen cell-production lines.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S011"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Cell-production lines specifically, distinct from the module-assembly plant (which had already been producing since May 2026)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S011"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": "6-8",
+          "evidence_status": "INFERRED",
+          "source_id": "S011"
+        },
+        "delay_unit": "months",
+        "delay_description": {
+          "value": "From the 'early 2026' target (S&P Global Autotech Insight) to confirmed trial-production start on 2026-09-22 (multi-source confirmed). This is a delay to the TRIAL milestone, not to full mass production, which remains unscheduled; the exact delay length is INFERRED since 'early 2026' is an approximate target window.",
+          "evidence_status": "INFERRED",
+          "source_id": "S011"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "No cost-of-delay figure found."
+      },
+      "response": {
+        "value": "CATL secured 'all permits required for trial operations' before starting; was separately required to complete rectifications of occupational-safety deficiencies (the nickel-dust exposure incident) as a precondition.",
+        "evidence_status": "OBSERVED",
+        "source_id": "S011"
+      },
+      "sources": [
+        "S049",
+        "S050",
+        "S051",
+        "S052",
+        "S053",
+        "S054",
+        "S055"
+      ],
+      "ground_truth_quality": "B",
+      "usable_metrics": {
+        "risk_classification": "partially_usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "partially_usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "usable"
+      },
+      "source_conflicts": "The exact original target date is imprecise across sources: 'early 2026' per S&P Global versus 'spring 2026' per a differently-worded search summary of unclear origin — roughly consistent (both within H1 2026) but not identical, and neither gives an exact day. Additionally, 'production equipment installation completed by spring 2026' is a different milestone (equipment readiness) from 'mass production start' (output), and some sources may conflate the two; this candidate treats trial-production start (2026-09-22, well multi-source confirmed) as the only firmly OBSERVED date.",
+      "exclusion_notes": "delay_MAE is partially_usable only (delay to trial milestone, not mass production, and the original target is an approximate window not an exact date). This is the closest real-world match found to the original service brief's Hungary regulation example."
+    },
+    {
+      "case_id": "V3-007",
+      "source_risk_id": "RS-012",
+      "project_context": "Intel Ohio One (New Albany, Ohio) semiconductor fabs, USA.",
+      "risk": {
+        "category": {
+          "value": "regulation/policy & funding uncertainty (no clean fit in the 8-category taxonomy)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S012"
+        },
+        "cause": {
+          "value": "Intel's Ohio One fabs, originally targeted to begin production in 2025 when the $28B investment was announced in 2022, were repeatedly restated -- confirmed via Intel's own official newsroom page -- citing CHIPS Act funding uncertainty and market conditions.",
+          "evidence_status": "OBSERVED",
+          "source_id": "S012"
+        }
+      },
+      "affected_tasks": [
+        {
+          "value": "Site/foundation work (6.4M work-hours, 200,000+ cubic yards of concrete, sub-utility trenches complete, 'go vertical' milestone achieved with below-grade structure complete and above-ground structure underway)",
+          "evidence_status": "OBSERVED",
+          "source_id": "S012"
+        }
+      ],
+      "schedule_impact": {
+        "delay_value": {
+          "value": "5",
+          "evidence_status": "INFERRED",
+          "source_id": "S012"
+        },
+        "delay_unit": "years",
+        "delay_description": {
+          "value": "Original 2025 target -> current ~2030 Mod 1 operations target (per Intel's own newsroom, Mod 1 operations 2030-2031, Mod 2 operations 2032). This is a compounding SEQUENCE of at least 3 separate delay announcements over 3 years (2022 target, a 2024 delay, the Feb 2025 delay to 2030), so the cumulative '~5 years' figure is an INFERRED sum, not one OBSERVED single-event figure.",
+          "evidence_status": "INFERRED",
+          "source_id": "S012"
+        }
+      },
+      "cost_impact": {
+        "value": {
+          "value": null,
+          "evidence_status": "NOT_AVAILABLE"
+        },
+        "currency": null,
+        "note": "The $28B figure is total project investment, not a cost specifically attributable to the delay."
+      },
+      "response": {
+        "value": "Construction continues (not halted) at a deliberately slower pace; Intel's own statement: 'taking a prudent approach to ensure we complete the project in a financially responsible manner' (EVP Naga Chandrasekaran).",
+        "evidence_status": "OBSERVED",
+        "source_id": "S012"
+      },
+      "sources": [
+        "S056",
+        "S057",
+        "S058",
+        "S059",
+        "S060"
+      ],
+      "ground_truth_quality": "B",
+      "usable_metrics": {
+        "risk_classification": "partially_usable",
+        "affected_task_retrieval": "usable",
+        "delay_MAE": "partially_usable",
+        "evidence_retrieval": "usable",
+        "response_evaluation": "usable"
+      },
+      "source_conflicts": "The cumulative delay figure depends on which original baseline is used: '2025' (the target stated when the $28B investment was announced in 2022) versus an intermediate '2026' target that some 2024-era reporting cites (suggesting the public target itself moved at least once before the widely-reported Feb 2025 restatement to 2030). This candidate treats the earliest publicly announced 2025 target (2022 announcement) as the baseline, consistent with STEP 1, but notes that at least one intermediate target (2026) also existed at some point, not independently pinned to an exact announcement date in this pass.",
+      "exclusion_notes": "risk_classification and delay_MAE are partially_usable only: this is a compounding, multi-cause, repeatedly-restated delay rather than one clean event -> one impact story, and the category does not map cleanly to the 8-category taxonomy."
+    }
+  ]
+}

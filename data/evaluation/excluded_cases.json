@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-24",
+  "notes": "Cases here are NOT deleted from the research trail or from L2; this file records why each was fully or partially excluded from L3 ground truth / specific evaluation metrics.",
+  "excluded_count": 5,
+  "excluded_cases": [
+    {
+      "case_id": "V3-008",
+      "project_name": "Ford BlueOval City / 'Tennessee Truck Plant' (formerly 'Tennessee Electric Vehicle Center')",
+      "exclusion_reason": "Grade C (not Grade A/B) -- and substantively, the underlying event stopped being a schedule delay: Ford cancelled the electric-pickup program entirely in Dec 2025 and replaced it with a different vehicle program (gas-powered truck), so there is no well-defined 'delay on the same task' to use as ground truth.",
+      "affected_metrics": [
+        "risk_classification",
+        "affected_task_retrieval",
+        "delay_MAE"
+      ],
+      "source_conflict": "WREG states 'the original timeline had trucks coming off the assembly line by 2026; last year [2025], that timeline was pushed back to 2027' — this differs slightly from STEP 1's baseline, which described the pre-delay target as '2025' rather than '2026.' Given the subsequent full product-scope change (EV to gas truck), reconciling the exact original numeric target is now moot for ground-truth purposes.",
+      "keep_in_l2": true
+    },
+    {
+      "case_id": "V2-004",
+      "project_name": "Rivian Georgia EV Plant (Stanton Springs North)",
+      "exclusion_reason": "Kept in L3 ground truth overall, but the following metric(s) are NOT_USABLE for this case: affected_task_retrieval, delay_MAE. See exclusion_notes on the matching ground_truth.json record for detail.",
+      "affected_metrics": [
+        "affected_task_retrieval",
+        "delay_MAE"
+      ],
+      "source_conflict": "(1) The DOE loan amount is reported inconsistently over time: '$6.6 billion' (finalized January 2025) versus a later 'updated loan agreement... valued at up to $4.5 billion' -- the sources reviewed do not clearly explain whether this is a restructuring, a drawdown-limit distinction, or a reporting inconsistency. (2) What counts as 'construction resuming' is defined differently across sources: ENR calls the September 2025 event a 'groundbreaking,' but the August 2026 AJC article describes still relatively early-stage site grading/utilities work, and other reporting states 'vertical construction commences in 2026' -- i.e., the ceremonial groundbreaking and substantive construction start appear to be separated by roughly another 6-12 months, a nuance STEP 1's single 'pause to restart' framing did not capture.",
+      "keep_in_l2": true
+    },
+    {
+      "case_id": "V3-001",
+      "project_name": "TSMC Arizona Fab 1 (Phoenix)",
+      "exclusion_reason": "Kept in L3 ground truth overall, but the following metric(s) are NOT_USABLE for this case: delay_MAE. See exclusion_notes on the matching ground_truth.json record for detail.",
+      "affected_metrics": [
+        "delay_MAE"
+      ],
+      "source_conflict": "Material, unresolved: TSMC's own official webpage (a retrospective marketing page, undated) claims high-volume N4 production 'started in Q4 2024' — i.e., matching the original PRE-delay target — while a dated, contemporaneous December 13, 2024 CNBC report describes the fab as still in pilot/sample-wafer production at that time and quotes TSMC itself as only 'dang near back on schedule.' These are difficult to reconcile from the sources reviewed; it is possible they describe different, narrower sub-milestones reached at different points within Q4 2024, but this was not established with confidence.",
+      "keep_in_l2": true
+    },
+    {
+      "case_id": "V3-004",
+      "project_name": "Ford Saarlouis Assembly Plant (Ford Focus production line)",
+      "exclusion_reason": "Kept in L3 ground truth overall, but the following metric(s) are NOT_USABLE for this case: response_evaluation. See exclusion_notes on the matching ground_truth.json record for detail.",
+      "affected_metrics": [
+        "response_evaluation"
+      ],
+      "source_conflict": "None material on the core dates/facts. This case exists specifically to correct a geography error inherited from STEP 1 (see V3-003's source_conflicts) — STEP 1's L3-017 labeled this event's country as 'USA,' which was incorrect.",
+      "keep_in_l2": true
+    },
+    {
+      "case_id": "V3-005",
+      "project_name": "VinFast Manufacturing US LLC plant, Chatham County 'Moncure megasite'",
+      "exclusion_reason": "Kept in L3 ground truth overall, but the following metric(s) are NOT_USABLE for this case: delay_MAE. See exclusion_notes on the matching ground_truth.json record for detail.",
+      "affected_metrics": [
+        "delay_MAE"
+      ],
+      "source_conflict": "WRAL reports a factual dispute at the center of the lawsuit itself: VinFast executives claim they were about to resume 'vertical' construction as recently as March 2026, while the state's lawsuit disputes whether any genuine construction activity ever occurred; the two sides disagree on the very definition of 'vertical construction activity,' which is a live, unresolved legal dispute, not merely a reporting discrepancy.",
+      "keep_in_l2": true
+    }
+  ]
+}

@@ -592,7 +592,7 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
           <div className="divider" />
           <h2>2. Excel import</h2>
           <input type="file" accept=".xlsx,.csv" onChange={(event: ChangeEvent<HTMLInputElement>) => setSelectedFile(event.target.files?.[0] || null)} />
-          <button onClick={uploadImport} disabled={busy || !selectedFile || !projectId}>업로드·미리보기</button>
+          <button onClick={uploadImport} disabled={busy || !selectedFile || !projectId}>Excel 업로드·미리보기</button>
           {preview && (
             <div className="preview">
               <b>{preview.import_kind === "change" ? "수정 Excel" : "Baseline Excel"}</b>
@@ -602,7 +602,8 @@ export default function Home({ initialProjectId = "" }: { initialProjectId?: str
             </div>
           )}
           <div className="divider" />
-          <h2>P1 문서 입력</h2>
+          <p className="eyebrow">EVIDENCE / 02</p>
+          <h2>보조 근거 연결</h2>
           <input type="file" accept=".pdf,.txt,.md,.eml" onChange={(event: ChangeEvent<HTMLInputElement>) => setDocumentFile(event.target.files?.[0] || null)} />
           <button onClick={uploadDocument} disabled={busy || !documentFile || !projectId}>PDF·메일 텍스트 입력</button>
           <small className="muted">업로드 후 worker가 파싱하고, 완료되면 검토 이벤트를 생성합니다.</small>

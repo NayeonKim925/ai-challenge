@@ -73,6 +73,8 @@ API 문서는 `http://localhost:8000/docs`에 있습니다. 분석/수집은 큐
 ```sh
 ./.venv/bin/python -m pytest -q
 ./.venv/bin/python scripts/evaluate_replay.py
+# 스크립트는 현재 작업 디렉터리와 무관하게 저장소의 기본 엑셀을 찾습니다.
+./.venv/bin/python scripts/evaluate_replay.py --input /path/to/REPLAN_demo_inputs.xlsx
 ```
 
 `scripts/evaluate_replay.py`는 인터넷/LLM 호출 없이 제공 엑셀의 baseline과 E01~E05 경계를 재현합니다. 실제 대회 API는 `API_KEY`, `LLM_MODEL`, `LLM_BASE_URL`을 서버에만 설정하세요. `python scripts/smoke_llm.py`는 모델 목록 조회만 하며, `--roundtrip`을 명시해야 생성 및 도구 호출을 테스트합니다. 분석 중 유료 호출을 허용하려면 `REPLAN_PAID_CALLS_ENABLED=true`를 별도로 지정합니다. 기본 일일 유료 실행 상한은 20건(`REPLAN_MAX_PAID_RUNS_PER_DAY`)이고 비용 단가가 검증되지 않은 호출은 0원이 아닌 `UNKNOWN`으로 기록합니다.

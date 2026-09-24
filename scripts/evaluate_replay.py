@@ -8,8 +8,9 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "services" / "api"))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_WORKBOOK = PROJECT_ROOT / "REPLAN_demo_inputs.xlsx"
+sys.path.insert(0, str(PROJECT_ROOT / "services" / "api"))
 
 from app.events import normalize_event  # noqa: E402
 from app.importers import parse_upload  # noqa: E402
@@ -17,8 +18,13 @@ from app.main import ConfirmInput, normalize_import_snapshot  # noqa: E402
 from app.scheduling import simulate  # noqa: E402
 
 
-def evaluate() -> dict:
-    parsed = parse_upload("REPLAN_demo_inputs.xlsx", (ROOT / "REPLAN_demo_inputs.xlsx").read_bytes())
+def evaluate(workbook_path: Path = DEFAULT_WORKBOOK) -> dict:
+    """Run the deterministic replay against a workbook independent of cwd."""
+    workbook_path = Path(workbook_path).expanduser().resolve()
+    if not workbook_path.is_file():
+        raise FileNotFoundError(f"Replay workbook not found: {workbook_path}")
+
+    parsed = parse_upload(workbook_path.name, workbook_path.read_bytes())
     snapshot = normalize_import_snapshot(parsed, {"name": "새 프로젝트", "mode": "REPLAY"}, ConfirmInput())
     project, tasks, options = snapshot["project"], snapshot["tasks"], snapshot["options"]
     expected = {
@@ -55,9 +61,15 @@ def evaluate() -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=DEFAULT_WORKBOOK,
+        help="workbook to evaluate (defaults to the repository demo workbook)",
+    )
     parser.add_argument("--output", type=Path, help="write the same JSON result to a file")
     args = parser.parse_args()
-    result = evaluate()
+    result = evaluate(args.input)
     rendered = json.dumps(result, ensure_ascii=False, indent=2)
     print(rendered)
     if args.output:
